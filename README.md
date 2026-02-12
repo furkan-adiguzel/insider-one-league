@@ -1,198 +1,199 @@
-Insider One – Champions League Simulation
+# Insider One – Champions League Simulation
 
-Bu proje, küçük bir lig ortamında haftalık maç simülasyonu yapan, puan tablosunu hesaplayan ve son 3 haftada Monte Carlo yöntemi ile şampiyonluk olasılıklarını tahmin eden bir uygulamadır.
+Bu proje, küçük ölçekli bir lig ortamında haftalık maç simülasyonu yapan, puan tablosunu hesaplayan ve son 3 haftada Monte Carlo yöntemi ile şampiyonluk olasılıklarını tahmin eden bir uygulamadır.
 
-Backend Laravel ile, frontend Vue 3 ile geliştirilmiştir. Mimari olarak Service Pattern + DTO yaklaşımı kullanılmıştır. Amaç yalnızca çalışır bir simülasyon değil, aynı zamanda sürdürülebilir ve test edilebilir bir yapı kurmaktır.
+Backend tarafı Laravel ile, frontend tarafı Vue 3 ile geliştirilmiştir. Mimari olarak Service Pattern + DTO yaklaşımı kullanılmıştır. Amaç yalnızca çalışır bir simülasyon değil, aynı zamanda sürdürülebilir, test edilebilir ve genişletilebilir bir yapı kurmaktır.
 
-Tech Stack
+---
 
-Laravel
+## 🚀 Tech Stack
 
-Vue 3
+- Laravel
+- Vue 3
+- Service Pattern
+- DTO (Data Transfer Object)
+- Monte Carlo Simulation
+- PHPUnit
+- Docker
 
-Service Pattern
+---
 
-DTO
+## 🏗️ Mimari Yaklaşım
 
-Monte Carlo Simulation
+Proje katmanlı bir yapı ile geliştirilmiştir:
 
-SQLite (test için memory)
+- Controller → sadece request/response yönetir.
+- Service Layer → tüm business logic burada yer alır.
+- DTO → veri transferi ve response formatı için kullanılır.
+- Prediction & Simulation → ayrı servisler olarak tasarlanmıştır.
+- Controller içinde doğrudan DB query yapılmaz.
 
-Docker
+Bu yapı sayesinde:
+- Kod okunabilir ve test edilebilir kalır.
+- Business logic UI’dan tamamen ayrıdır.
+- Prediction algoritması kolayca değiştirilebilir.
 
-Genel Mimari
+---
 
-Controller katmanında iş mantığı bulunmaz.
-Controller → Service → Repository/Model akışı izlenir.
+## ⚽ Özellikler
 
-Controller yalnızca request alır ve response döner.
+- Takım ekleme / düzenleme / silme
+- Fixture üretme (round-robin)
+- Haftalık simülasyon
+- Tüm haftaları oynatma
+- Skor düzenleme
+- Skor değişiminde puan tablosunun yeniden hesaplanması
+- Son 3 haftada şampiyonluk olasılığı (Monte Carlo)
 
-Business logic Service katmanındadır.
+---
 
-Data transfer için DTO kullanılır.
+## 🧠 Simülasyon Mantığı
 
-Prediction, Standings ve Match simulation ayrı servislerdir.
+### Standings (Deterministic)
 
-SOLID prensiplerine dikkat edilmiştir.
+- Oynanmış maç skorlarından hesaplanır.
+- 3 puan galibiyet, 1 puan beraberlik.
+- Sıralama kriteri:
+  1. Puan
+  2. Averaj
+  3. Atılan gol
 
-Özellikle:
+Standings verisi DB’ye kalıcı yazılmaz, her seferinde hesaplanır.
 
-Standings hesaplaması deterministic (gerçek maçlara göre)
+---
 
-Prediction hesaplaması probabilistic (Monte Carlo)
+### Match Simulation
 
-Özellikler
+- Takımların power değeri dikkate alınır.
+- Güç oranına göre probabilistic skor üretilir.
+- Ev sahibi küçük avantaj içerir.
+- Simülasyon deterministic değildir (randomized).
 
-Takım ekleme / düzenleme / silme
+---
 
-Fixture üretme
+### Prediction (Monte Carlo)
 
-Haftalık simülasyon
+- Sadece son 3 haftada aktif olur.
+- Kalan maçlar binlerce kez simüle edilir.
+- Her iterasyonda şampiyon belirlenir.
+- Sonuç olarak her takım için yüzde bazlı şampiyonluk ihtimali hesaplanır.
 
-Tüm haftaları oynatma
+Bu yaklaşım brute force kombinasyon yerine istatistiksel örnekleme kullanır.
 
-Skor düzenleme ve puan tablosunun yeniden hesaplanması
+---
 
-Son 3 haftada şampiyonluk olasılığı hesaplama
+## 🛠️ Kurulum (Local)
 
-Simülasyon Mantığı
-Standings
+### 1. Repo Klonla
 
-Oynanmış maç skorlarından puan tablosu oluşturulur.
-
-3 puan galibiyet, 1 puan beraberlik.
-
-Sıralama: Puan → Averaj → Atılan gol.
-
-Match Simulation
-
-Takım power değerleri dikkate alınır.
-
-Güç oranına göre probabilistic skor üretilir.
-
-Ev sahibi küçük avantaj içerir.
-
-Prediction (Monte Carlo)
-
-Son 3 haftada aktif olur.
-
-Kalan maçlar binlerce kez simüle edilir.
-
-Her iterasyonda şampiyon belirlenir.
-
-Sonuç olarak her takım için % şampiyonluk olasılığı hesaplanır.
-
-Kurulum
-1. Repo klonla
 git clone <repo-url>
 cd insider-one-league
 
-2. Backend kurulumu
+---
+
+### 2. Backend Kurulumu
+
 composer install
 cp .env.example .env
 php artisan key:generate
 
+Database ayarlarını .env içinde yap.
 
-Database ayarını .env içinde yap.
-
-SQLite kullanmak istersen:
+SQLite kullanmak için:
 
 DB_CONNECTION=sqlite
 DB_DATABASE=database/database.sqlite
 
-
-Sonra:
+Ardından:
 
 touch database/database.sqlite
 php artisan migrate
 
-3. Frontend kurulumu
+---
+
+### 3. Frontend Kurulumu
+
 npm install
 npm run dev
 
-4. Uygulamayı çalıştır
+---
+
+### 4. Uygulamayı Başlat
+
 php artisan serve
 
-
-Frontend:
-
+Frontend arayüz:
 http://localhost:8000/ui
 
-Docker ile Çalıştırma
+---
 
-Projede Dockerfile ve docker-compose mevcuttur.
+## 🐳 Docker ile Çalıştırma
 
 docker compose up -d --build
-
 
 Migration:
 
 docker compose exec app php artisan migrate
 
-Test Çalıştırma
+---
 
-Testler SQLite memory üzerinde çalışır.
+## 🧪 Test Çalıştırma
 
 php artisan test
 
-
 Test kapsamı:
 
-Full simulation flow
+- Full simulation flow
+- Score edit sonrası recalculation
+- Prediction (son 3 hafta) kontrolü
+- API endpoint doğrulamaları
 
-Edit sonrası recalculation
+---
 
-Prediction last 3 weeks gate
+## 🔌 API Endpoints
 
-API endpoint doğrulamaları
+GET    /api/league  
+GET    /api/teams  
+POST   /api/teams  
+PATCH  /api/teams/{teamId}  
+DELETE /api/teams/{teamId}  
 
-API Endpoints
-GET    /api/league
-GET    /api/teams
-POST   /api/teams
-PATCH  /api/teams/{teamId}
-DELETE /api/teams/{teamId}
+GET    /api/fixtures  
 
-GET    /api/fixtures
+POST   /api/simulation/generate-fixtures  
+POST   /api/simulation/play-next-week  
+POST   /api/simulation/play-all  
+POST   /api/simulation/reset  
+PATCH  /api/simulation/matches/{matchId}  
 
-POST   /api/simulation/generate-fixtures
-POST   /api/simulation/play-next-week
-POST   /api/simulation/play-all
-POST   /api/simulation/reset
-PATCH  /api/simulation/matches/{matchId}
+---
 
-Önemli Tasarım Kararları
+## 📌 Tasarım Kararları
 
-Controller içinde DB query yapılmaz.
+- Controller içinde business logic yoktur.
+- Prediction Service ayrı tutulmuştur.
+- Match simulation soyutlanmıştır (gelecekte farklı algoritmalar eklenebilir).
+- Standings DB’ye persist edilmez.
+- DTO ile response yapısı sabit tutulur.
+- Prediction yalnızca son 3 haftada çalışır (gereksiz hesaplama yapılmaz).
 
-Prediction Service ayrı tutulmuştur.
+---
 
-Match simulation soyutlanmıştır (ileride farklı algoritma eklenebilir).
+## 📎 Notlar
 
-Standings DB’ye persist edilmez; her seferinde hesaplanır.
+- Varsayılan lig 6 haftalık yapı üzerinden çalışır.
+- Iteration sayısı performans ve doğruluk dengesi gözetilerek belirlenmiştir.
+- UI sade tutulmuştur; mimari önceliklidir.
 
-DTO ile response yapısı sabit tutulur.
+---
 
-Prediction yalnızca son 3 haftada çalışır (gereksiz hesaplama yapılmaz).
+## 🎯 Sonuç
 
-Notlar
+Bu proje:
 
-Varsayılan lig 6 haftalık round-robin mantığı ile çalışır.
-
-Iteration sayısı performans/güvenilirlik dengesi gözetilerek belirlenmiştir.
-
-UI basit ama fonksiyonel tutulmuştur; mimari önceliklidir.
-
-Sonuç
-
-Bu proje yalnızca bir maç simülasyonu değil;
-
-Katmanlı mimari,
-
-Test edilebilir servis yapısı,
-
-Ayrılmış business logic,
-
-Genişletilebilir prediction algoritması
+- Katmanlı mimari,
+- Test edilebilir servis yapısı,
+- Ayrılmış business logic,
+- Genişletilebilir prediction algoritması
 
 gibi yazılım prensiplerini göstermek amacıyla geliştirilmiştir.
