@@ -22,11 +22,7 @@
 
                 <div v-if="teams.loading"><UiSpinner>Loading teams…</UiSpinner></div>
                 <div v-else>
-                    <TeamsTable
-                        :teams="teams.teams"
-                        @update="onUpdate"
-                        @delete="onDelete"
-                    />
+                    <TeamsTable :teams="teams.teams" @update="onUpdate" @delete="onDelete" />
                 </div>
 
                 <div v-if="teams.error" class="text-sm text-red-600 mt-2">{{ teams.error }}</div>
@@ -44,37 +40,17 @@ import TeamForm from '../components/teams/TeamForm.vue'
 import TeamsTable from '../components/teams/TeamsTable.vue'
 import { useTeamsStore } from '../stores/teamsStore'
 import { useUiStore } from '../stores/uiStore'
+import { useTeamsActions } from '../composables/useTeamsActions'
 
 const teams = useTeamsStore()
 const ui = useUiStore()
 
-async function onCreate(payload: { name: string; power: number }) {
-    try {
-        await teams.create(payload.name, payload.power)
-        ui.toast('success', 'Team created.')
-    } catch (e: any) {
-        ui.toast('error', e?.message ?? 'Create failed.')
-    }
-}
-
-async function onUpdate(payload: { teamId: number; name: string; power: number }) {
-    try {
-        await teams.update(payload.teamId, { name: payload.name, power: payload.power })
-        ui.toast('success', 'Team updated.')
-    } catch (e: any) {
-        ui.toast('error', e?.message ?? 'Update failed.')
-    }
-}
-
-async function onDelete(teamId: number) {
-    if (!confirm('Delete this team?')) return
-    try {
-        await teams.remove(teamId)
-        ui.toast('success', 'Team deleted.')
-    } catch (e: any) {
-        ui.toast('error', e?.message ?? 'Delete failed.')
-    }
-}
+const { onCreate, onUpdate, onDelete } = useTeamsActions({
+    create: (name, power) => teams.create(name, power),
+    update: (id, payload) => teams.update(id, payload),
+    remove: (id) => teams.remove(id),
+    toast: ui.toast,
+})
 
 onMounted(() => teams.load())
 </script>

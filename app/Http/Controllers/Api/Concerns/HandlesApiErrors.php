@@ -25,29 +25,33 @@ trait HandlesApiErrors
     {
         $this->logException($e);
 
-        $status = 500;
-        $type = 'server_error';
-        $message = config('app.debug')
-            ? $e->getMessage()
-            : 'Unexpected server error.';
+        $status  = 500;
+        $type    = 'server_error';
+        $message = config('app.debug') ? $e->getMessage() : 'Unexpected server error.';
+        $fields  = null;
 
         if ($e instanceof ValidationException) {
-            $status = 422;
-            $type = 'validation_error';
+            $status  = 422;
+            $type    = 'validation_error';
             $message = 'Validation failed.';
+            $fields  = $e->errors();
         }
 
         if ($e instanceof HttpExceptionInterface) {
             $status = $e->getStatusCode();
-            $type = 'http_error';
-            $message = $e->getMessage() ?: 'Request failed.';
+            $type   = 'http_error';
+
+            $message = config('app.debug')
+                ? ($e->getMessage() ?: 'Request failed.')
+                : 'Request failed.';
         }
 
         return response()->json(
             $this->envelope(false, null, [
-                'type' => $type,
+                'type'    => $type,
                 'message' => $message,
-                'code' => $status,
+                'code'    => $status,
+                'fields'  => $fields,
             ]),
             $status,
             [],
@@ -62,9 +66,9 @@ trait HandlesApiErrors
             'data' => $data,
             'error' => $error,
             'meta' => [
-                'timestamp' => now()->toISOString(),
+                'timestamp'  => now()->toISOString(),
                 'request_id' => request()->header('X-Request-ID') ?? Str::uuid()->toString(),
-                'version' => config('app.version', '1.0'),
+                'version'    => config('app.version', '1.0'),
             ],
         ];
     }
@@ -73,10 +77,10 @@ trait HandlesApiErrors
     {
         Log::error('API Exception', [
             'exception' => get_class($e),
-            'message' => $e->getMessage(),
-            'url' => request()->fullUrl(),
-            'method' => request()->method(),
-            'trace' => config('app.debug') ? $e->getTraceAsString() : null,
+            'message'   => $e->getMessage(),
+            'url'       => request()->fullUrl(),
+            'method'    => request()->method(),
+            'trace'     => config('app.debug') ? $e->getTraceAsString() : null,
         ]);
     }
 }
