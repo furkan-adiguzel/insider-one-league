@@ -106,14 +106,56 @@ cd insider-one-league
 composer install
 cp .env.example .env
 php artisan key:generate
+```
+
+🗄 Database Configuration
+
+You can run the project in multiple ways:
+
+Option A — Local DB (XAMPP / MAMP / Laravel Herd etc.)
+
+Configure your local MySQL credentials inside .env:
+```bash
+DB_CONNECTION=mysql
+DB_HOST=127.0.0.1
+DB_PORT=3306
+DB_DATABASE=insider_one
+DB_USERNAME=root
+DB_PASSWORD=
+```
+
+Then run:
+```bash
 php artisan migrate
 ```
 
-SQLite (optional)
+Option B — Remote Database (Recommended for simplicity)
+
+Instead of installing XAMPP or a local database, you can directly connect to a remote MySQL server (for example, a GüzelHosting database).
+
+Example:
+```bash
+DB_CONNECTION=mysql
+DB_HOST=your-remote-host
+DB_PORT=3306
+DB_DATABASE=your_database
+DB_USERNAME=your_username
+DB_PASSWORD=your_password
+```
+
+Then simply run:
+```bash
+php artisan migrate
+```
+
+This avoids setting up a local MySQL server entirely.
+
+Option C — SQLite (Lightweight Alternative)
 ```bash
 DB_CONNECTION=sqlite
 DB_DATABASE=database/database.sqlite
-
+```
+```bash
 touch database/database.sqlite
 php artisan migrate
 ```
