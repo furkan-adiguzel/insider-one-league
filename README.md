@@ -86,16 +86,16 @@ Bu yaklaşım brute force kombinasyon yerine istatistiksel örnekleme kullanır.
 
 ### 1. Repo Klonla
 
-git clone https://github.com/furkan-adiguzel/insider-one-league
-cd insider-one-league
+-git clone https://github.com/furkan-adiguzel/insider-one-league
+-cd insider-one-league
 
 ---
 
 ### 2. Backend Kurulumu
 
-composer install
-cp .env.example .env
-php artisan key:generate
+-composer install
+-cp .env.example .env
+-php artisan key:generate
 
 Database ayarlarını .env içinde yap.
 
