@@ -86,7 +86,7 @@ Bu yaklaşım brute force kombinasyon yerine istatistiksel örnekleme kullanır.
 
 ### 1. Repo Klonla
 
-git clone [<repo-url>](https://github.com/furkan-adiguzel/insider-one-league)
+git clone https://github.com/furkan-adiguzel/insider-one-league
 cd insider-one-league
 
 ---
