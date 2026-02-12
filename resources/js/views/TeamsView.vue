@@ -22,22 +22,36 @@
 
                 <div v-if="teams.loading"><UiSpinner>Loading teams…</UiSpinner></div>
                 <div v-else>
-                    <TeamsTable :teams="teams.teams" @update="onUpdate" @delete="onDelete" />
+                    <TeamsTable
+                        :teams="teams.teams"
+                        @update="onUpdate"
+                        @delete="openDelete"
+                    />
                 </div>
 
                 <div v-if="teams.error" class="text-sm text-red-600 mt-2">{{ teams.error }}</div>
             </UiCard>
         </div>
+
+        <TeamDeleteConfirmModal
+            v-if="del.open"
+            :team="teamToDelete"
+            :busy="del.busy"
+            @close="closeDelete"
+            @confirm="confirmDelete"
+        />
     </div>
 </template>
 
 <script setup lang="ts">
-import { onMounted } from 'vue'
+import { computed, onMounted, reactive } from 'vue'
 import UiCard from '../components/ui/UiCard.vue'
 import UiButton from '../components/ui/UiButton.vue'
 import UiSpinner from '../components/ui/UiSpinner.vue'
 import TeamForm from '../components/teams/TeamForm.vue'
 import TeamsTable from '../components/teams/TeamsTable.vue'
+import TeamDeleteConfirmModal from '../components/teams/TeamDeleteConfirmModal.vue'
+
 import { useTeamsStore } from '../stores/teamsStore'
 import { useUiStore } from '../stores/uiStore'
 import { useTeamsActions } from '../composables/useTeamsActions'
@@ -51,6 +65,40 @@ const { onCreate, onUpdate, onDelete } = useTeamsActions({
     remove: (id) => teams.remove(id),
     toast: ui.toast,
 })
+
+const del = reactive<{ open: boolean; teamId: number | null; busy: boolean }>({
+    open: false,
+    teamId: null,
+    busy: false,
+})
+
+const teamToDelete = computed(() => {
+    if (!del.teamId) return null
+    return teams.teams.find(t => t.id === del.teamId) ?? null
+})
+
+function openDelete(teamId: number) {
+    del.open = true
+    del.teamId = teamId
+}
+
+function closeDelete() {
+    if (del.busy) return
+    del.open = false
+    del.teamId = null
+}
+
+async function confirmDelete(teamId: number) {
+    del.busy = true
+    try {
+        await onDelete(teamId)
+        del.open = false
+        del.teamId = null
+    } catch {
+    } finally {
+        del.busy = false
+    }
+}
 
 onMounted(() => teams.load())
 </script>

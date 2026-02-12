@@ -12,6 +12,7 @@ export function useTeamsActions(opts: {
             opts.toast('success', 'Team created.')
         } catch (e: any) {
             opts.toast('error', e?.message ?? 'Create failed.')
+            throw e
         }
     }
 
@@ -21,16 +22,17 @@ export function useTeamsActions(opts: {
             opts.toast('success', 'Team updated.')
         } catch (e: any) {
             opts.toast('error', e?.message ?? 'Update failed.')
+            throw e
         }
     }
 
     async function onDelete(teamId: number) {
-        if (!confirm('Delete this team?')) return
         try {
             await opts.remove(teamId)
             opts.toast('success', 'Team deleted.')
         } catch (e: any) {
             opts.toast('error', e?.message ?? 'Delete failed.')
+            throw e
         }
     }
 
