@@ -13,18 +13,22 @@
 
             <div class="grid grid-cols-2 gap-3 mt-4">
                 <div>
-                    <div class="text-xs text-gray-600 mb-1">{{ match.home.name }} score</div>
-                    <UiInput type="number" min="0" max="20" v-model="home" />
+                    <div class="text-xs text-gray-600 mb-1">{{ match.home.name }} score (0–20)</div>
+                    <UiInput type="number" min="0" max="20" v-model.number="home" />
                 </div>
                 <div>
-                    <div class="text-xs text-gray-600 mb-1">{{ match.away.name }} score</div>
-                    <UiInput type="number" min="0" max="20" v-model="away" />
+                    <div class="text-xs text-gray-600 mb-1">{{ match.away.name }} score (0–20)</div>
+                    <UiInput type="number" min="0" max="20" v-model.number="away" />
                 </div>
+            </div>
+
+            <div v-if="showValidationError" class="mt-2 text-xs text-red-600">
+                Scores must be between 0 and 20.
             </div>
 
             <div class="flex items-center justify-end gap-2 mt-4">
                 <UiButton :disabled="busy" @click="$emit('close')">Cancel</UiButton>
-                <UiButton :disabled="busy" variant="primary" @click="save">Save</UiButton>
+                <UiButton :disabled="busy || !canSave" variant="primary" @click="save">Save</UiButton>
             </div>
 
             <div v-if="busy" class="mt-3">
@@ -35,7 +39,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch } from 'vue'
+import { computed, ref, watch } from 'vue'
 import UiInput from '../ui/UiInput.vue'
 import UiButton from '../ui/UiButton.vue'
 import UiSpinner from '../ui/UiSpinner.vue'
@@ -47,18 +51,34 @@ const emit = defineEmits<{
     (e: 'save', payload: { matchId: number; home: number; away: number }): void
 }>()
 
-const home = ref<number>(props.match.home_score ?? 0)
-const away = ref<number>(props.match.away_score ?? 0)
+const home = ref<number>(0)
+const away = ref<number>(0)
 
 watch(
     () => props.match,
     (m) => {
-        home.value = m.home_score ?? 0
-        away.value = m.away_score ?? 0
-    }
+        home.value = Number(m.home_score ?? 0)
+        away.value = Number(m.away_score ?? 0)
+    },
+    { immediate: true }
 )
 
+const inRange = (n: number) => Number.isFinite(n) && n >= 0 && n <= 20
+
+const isValid = computed(() => inRange(Number(home.value)) && inRange(Number(away.value)))
+
+const isDirty = computed(() => {
+    const h0 = Number(props.match.home_score ?? 0)
+    const a0 = Number(props.match.away_score ?? 0)
+    return Number(home.value) !== h0 || Number(away.value) !== a0
+})
+
+const canSave = computed(() => isValid.value && isDirty.value)
+
+const showValidationError = computed(() => !props.busy && !isValid.value)
+
 function save() {
+    if (!canSave.value) return
     emit('save', { matchId: props.match.id, home: Number(home.value), away: Number(away.value) })
 }
 </script>
