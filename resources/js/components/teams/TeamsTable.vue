@@ -30,12 +30,27 @@
                         class="w-full rounded-lg border border-gray-300 px-2 py-1"
                         v-model.number="local[t.id].power"
                     />
+                    <div v-if="!isPowerValid(t.id)" class="mt-1 text-[11px] text-red-600">
+                        Power must be between 1 and 200
+                    </div>
                 </td>
 
                 <td class="py-2 pr-3">
                     <div class="flex gap-2">
-                        <button class="cursor-pointer px-3 py-1.5 text-xs font-medium rounded-lg bg-gray-900 text-white hover:bg-gray-800 transition" @click="save(t.id)">Save</button>
-                        <button class="cursor-pointer px-3 py-1.5 text-xs font-medium rounded-lg bg-red-50 text-red-600 hover:bg-red-100 transition" @click="$emit('delete', t.id)">Delete</button>
+                        <button
+                            class="cursor-pointer px-3 py-1.5 text-xs font-medium rounded-lg bg-gray-900 text-white hover:bg-gray-800 transition disabled:opacity-50 disabled:cursor-not-allowed"
+                            :disabled="!canSave(t.id)"
+                            @click="save(t.id)"
+                        >
+                            Save
+                        </button>
+
+                        <button
+                            class="cursor-pointer px-3 py-1.5 text-xs font-medium rounded-lg bg-red-50 text-red-600 hover:bg-red-100 transition"
+                            @click="$emit('delete', t.id)"
+                        >
+                            Delete
+                        </button>
                     </div>
                 </td>
             </tr>
@@ -66,7 +81,22 @@ watchEffect(() => {
     }
 })
 
+function isNameValid(teamId: number): boolean {
+    const n = (local[teamId]?.name ?? '').trim()
+    return n.length > 1
+}
+
+function isPowerValid(teamId: number): boolean {
+    const p = Number(local[teamId]?.power)
+    return Number.isFinite(p) && p >= 1 && p <= 200
+}
+
+function canSave(teamId: number): boolean {
+    return isNameValid(teamId) && isPowerValid(teamId)
+}
+
 function save(teamId: number) {
+    if (!canSave(teamId)) return
     const row = local[teamId]
     emit('update', { teamId, name: row.name.trim(), power: Number(row.power) })
 }
