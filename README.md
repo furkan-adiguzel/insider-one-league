@@ -65,7 +65,7 @@ Backend Laravel, frontend Vue 3 ile geliştirilmiştir. Mimari olarak Service Pa
 ### 1) Repo’yu klonla
 
 ```bash
-git clone [<repo-url>](https://github.com/furkan-adiguzel/insider-one-league)
+git clone https://github.com/furkan-adiguzel/insider-one-league
 cd insider-one-league
 2) Backend bağımlılıkları
 composer install
