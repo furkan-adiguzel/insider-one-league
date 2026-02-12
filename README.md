@@ -1,136 +1,144 @@
-# Insider One – Champions League Simulation
+# ⚽ Insider One – Champions League Simulation
 
-Insider One is a small-scale league simulation app that plays weekly matches, calculates standings dynamically, and estimates championship probabilities in the last 3 weeks using Monte Carlo simulation.
+A league simulation engine that plays weekly matches, calculates standings dynamically, and estimates championship probabilities using Monte Carlo simulation.
 
-- **Live Demo:** https://insider-one-league.furkanadiguzel.com/
-- **Dashboard:** https://insider-one-league.furkanadiguzel.com/dashboard
+🌐 **Live Demo:**  
+https://insider-one-league.furkanadiguzel.com/
 
----
-
-## About
-
-This project is built to demonstrate a **clean, testable, and extendable architecture** rather than only producing match results.
-
-- **Backend:** Laravel  
-- **Frontend:** Vue 3  
-- **Architecture:** Service Pattern + DTO  
-- **Prediction:** Monte Carlo (last 3 weeks only)
+📊 **Dashboard:**  
+https://insider-one-league.furkanadiguzel.com/dashboard
 
 ---
 
-## Tech Stack
+## 📖 About The Project
 
-- Laravel
-- Vue 3
-- Vite
-- Service Layer
-- DTOs
-- Monte Carlo Simulation
-- PHPUnit
-- Docker
+Insider One is built to demonstrate **clean architecture and testable business logic**, not just match simulation.
+
+- 🧠 Clean Service-Oriented Architecture  
+- 🔄 Dynamic standings calculation  
+- 🎲 Probabilistic match engine  
+- 📈 Monte Carlo championship prediction  
 
 ---
 
-## Architecture
+## 🛠 Tech Stack
 
-- **Controllers** handle only HTTP request/response.
-- **Service layer** contains all business logic.
-- **DTOs** standardize the response structure.
-- **Simulation** and **Prediction** are designed as separate services.
-- **Standings are not persisted**; they are calculated from match results every time.
-
-This keeps the codebase readable, testable, and easy to extend.
-
----
-
-## Features
-
-- Team CRUD (create / update / delete)
-- Round-robin fixture generation
-- Play next week
-- Play full season
-- Edit match score
-- Automatic standings recalculation after score changes
-- Championship probability (Monte Carlo) in the last 3 weeks
+- 🧱 Laravel  
+- ⚡ Vue 3  
+- 🎛 Vite  
+- 🧩 Service Pattern  
+- 📦 DTO (Data Transfer Objects)  
+- 🧪 PHPUnit  
+- 🐳 Docker  
 
 ---
 
-## Simulation Logic
+## 🏗 Architecture
 
-### Standings (Deterministic)
+The project follows a layered design:
 
-- Calculated from played match scores
-- 3 points for win, 1 point for draw
-- Sorting priority:
+- 🎯 **Controllers** → Handle only HTTP request/response  
+- 🧠 **Service Layer** → Contains all business logic  
+- 📦 **DTO Layer** → Standardizes API responses  
+- 🎲 **Simulation Service** → Match engine  
+- 📊 **Prediction Service** → Monte Carlo engine  
+
+⚠️ No business logic exists inside controllers.  
+📈 Standings are calculated dynamically (never persisted).
+
+---
+
+## ⚙️ Features
+
+- ➕ Team CRUD  
+- 📅 Round-robin fixture generation  
+- ▶️ Play next week  
+- ⏩ Play full season  
+- ✏️ Edit match scores  
+- 🔁 Automatic standings recalculation  
+- 🏆 Championship probability (last 3 weeks)
+
+---
+
+## 🧠 Simulation Logic
+
+### 📊 Standings (Deterministic)
+
+- 3 points for win  
+- 1 point for draw  
+- Ranking priority:
   1. Points
-  2. Goal difference
-  3. Goals scored
-
-### Match Simulation
-
-- Uses team **power** values
-- Generates scores probabilistically
-- Includes a small home advantage
-- Randomized (not deterministic)
-
-### Prediction (Monte Carlo)
-
-- Enabled only in the **last 3 weeks**
-- Remaining matches are simulated thousands of times
-- A champion is determined each iteration
-- Final result is a percentage chance per team
+  2. Goal Difference
+  3. Goals Scored  
 
 ---
 
-## Local Setup
+### 🎲 Match Simulation
 
+- Uses team **power rating**
+- Generates scores probabilistically
+- Small home advantage
+- Randomized outcomes
+
+---
+
+### 🔮 Monte Carlo Prediction
+
+- Active only during the **last 3 weeks**
+- Remaining matches simulated thousands of times
+- Champion determined each iteration
+- Final output: percentage chance per team
+
+Statistical sampling is used instead of brute-force combinations for performance efficiency.
+
+---
 ```bash
-### 1) Clone
 
+## 🚀 Local Setup
 
+1️⃣ Clone
 git clone <repo-url>
 cd insider-one-league
 
-2) Backend
+2️⃣ Backend
 composer install
 cp .env.example .env
 php artisan key:generate
-Configure your database in .env, then run migrations:
-
 php artisan migrate
+
 SQLite (optional)
+
 DB_CONNECTION=sqlite
 DB_DATABASE=database/database.sqlite
+
 touch database/database.sqlite
 php artisan migrate
-3) Frontend
+
+3️⃣ Frontend
 npm install
 npm run dev
-Production build:
 
+Production build:
 npm run build
-4) Run
+
+4️⃣ Run
 php artisan serve
 Open:
 
 http://localhost:8000/dashboard
 
-Docker
+🐳 Docker
 docker compose up -d --build
 docker compose exec app php artisan migrate
-Tests
+
+🧪 Tests
 php artisan test
-Covers:
+✔ Full simulation flow
+✔ Score edit recalculation
+✔ Prediction validation
+✔ API endpoint verification
 
-Full simulation flow
-
-Recalculation after score edits
-
-Prediction validation (last 3 weeks)
-
-API endpoint verification
-
-API Endpoints
+🔌 API Endpoints
 GET    /api/league
 GET    /api/teams
 POST   /api/teams
@@ -144,15 +152,16 @@ POST   /api/simulation/play-next-week
 POST   /api/simulation/play-all
 POST   /api/simulation/reset
 PATCH  /api/simulation/matches/{matchId}
-Notes
-Default league setup is based on a 6-week season.
+📌 Notes
+Default season length: 6 weeks
 
-Monte Carlo iteration count is selected with a performance/accuracy balance.
+Monte Carlo iteration count optimized for performance
 
-UI is intentionally minimal; architecture is the main focus.
+UI intentionally minimal
 
-In production, make sure Vite build exists (public/build/manifest.json).
+Production requires Vite build (public/build/manifest.json)
 
-Copyright
+👨‍💻 Author
 © 2026 Furkan Adıgüzel
 https://furkanadiguzel.com/
+
