@@ -138,6 +138,8 @@ php artisan test
 ✔ API endpoint verification
 
 🔌 API Endpoints
+
+```bash
 GET    /api/league
 GET    /api/teams
 POST   /api/teams
@@ -151,6 +153,8 @@ POST   /api/simulation/play-next-week
 POST   /api/simulation/play-all
 POST   /api/simulation/reset
 PATCH  /api/simulation/matches/{matchId}
+```
+
 📌 Notes
 Default season length: 6 weeks
 
