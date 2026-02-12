@@ -1,166 +1,134 @@
-<p align="center"> <h1 align="center">Insider One – Champions League Simulation</h1> <p align="center"> Monte Carlo powered league simulation built with Laravel & Vue 3 </p> </p> <p align="center"> <a href="https://insider-one-league.furkanadiguzel.com/" target="_blank"> <img src="https://img.shields.io/badge/Live-Demo-success?style=for-the-badge" alt="Live Demo"> </a> <img src="https://img.shields.io/badge/Laravel-10-red?style=for-the-badge" alt="Laravel"> <img src="https://img.shields.io/badge/Vue-3-brightgreen?style=for-the-badge" alt="Vue 3"> <img src="https://img.shields.io/badge/Docker-Enabled-blue?style=for-the-badge" alt="Docker"> <img src="https://img.shields.io/badge/Tests-PHPUnit-informational?style=for-the-badge" alt="PHPUnit"> </p>
-🌐 Live Demo
+# Insider One – Champions League Simulation
 
-You can explore the running application here:
+Insider One is a small-scale league simulation app that plays weekly matches, calculates standings dynamically, and estimates championship probabilities in the last 3 weeks using Monte Carlo simulation.
 
-Main Site:
-https://insider-one-league.furkanadiguzel.com/
+- **Live Demo:** https://insider-one-league.furkanadiguzel.com/
+- **Dashboard:** https://insider-one-league.furkanadiguzel.com/dashboard
 
-Dashboard:
-https://insider-one-league.furkanadiguzel.com/dashboard
+---
 
-📖 About The Project
+## About
 
-Insider One is a league simulation engine that:
+This project is built to demonstrate a **clean, testable, and extendable architecture** rather than only producing match results.
 
-Simulates weekly football matches
+- **Backend:** Laravel  
+- **Frontend:** Vue 3  
+- **Architecture:** Service Pattern + DTO  
+- **Prediction:** Monte Carlo (last 3 weeks only)
 
-Calculates standings dynamically
+---
 
-Recalculates rankings after score edits
+## Tech Stack
 
-Runs Monte Carlo prediction during the last 3 weeks
+- Laravel
+- Vue 3
+- Vite
+- Service Layer
+- DTOs
+- Monte Carlo Simulation
+- PHPUnit
+- Docker
 
-Displays championship probability percentages
+---
 
-The goal of this project is not only to simulate matches, but to demonstrate:
+## Architecture
 
-Clean architecture
+- **Controllers** handle only HTTP request/response.
+- **Service layer** contains all business logic.
+- **DTOs** standardize the response structure.
+- **Simulation** and **Prediction** are designed as separate services.
+- **Standings are not persisted**; they are calculated from match results every time.
 
-Separation of concerns
+This keeps the codebase readable, testable, and easy to extend.
 
-Testable service layer
+---
 
-Extendable simulation logic
+## Features
 
-🏗️ Architecture
+- Team CRUD (create / update / delete)
+- Round-robin fixture generation
+- Play next week
+- Play full season
+- Edit match score
+- Automatic standings recalculation after score changes
+- Championship probability (Monte Carlo) in the last 3 weeks
 
-This project follows a layered architecture:
+---
 
-Controller Layer → Handles only HTTP requests & responses
+## Simulation Logic
 
-Service Layer → Contains all business logic
+### Standings (Deterministic)
 
-DTO Layer → Standardizes API response structures
+- Calculated from played match scores
+- 3 points for win, 1 point for draw
+- Sorting priority:
+  1. Points
+  2. Goal difference
+  3. Goals scored
 
-Simulation Service → Match logic abstraction
+### Match Simulation
 
-Prediction Service → Monte Carlo engine
+- Uses team **power** values
+- Generates scores probabilistically
+- Includes a small home advantage
+- Randomized (not deterministic)
 
-No direct business logic exists inside controllers.
+### Prediction (Monte Carlo)
 
-Standings are always calculated dynamically — never persisted.
+- Enabled only in the **last 3 weeks**
+- Remaining matches are simulated thousands of times
+- A champion is determined each iteration
+- Final result is a percentage chance per team
 
-⚙️ Features
+---
 
-Team CRUD
+## Local Setup
 
-Round-robin fixture generation
+### 1) Clone
 
-Play next week
-
-Play full season
-
-Score editing
-
-Automatic standings recalculation
-
-Monte Carlo championship prediction (last 3 weeks only)
-
-Full API support
-
-Unit & feature tests
-
-🧠 Simulation Logic
-Deterministic Standings
-
-3 points for win
-
-1 point for draw
-
-Ranking priority:
-
-Points
-
-Goal difference
-
-Goals scored
-
-Match Simulation
-
-Based on team power rating
-
-Probabilistic scoring
-
-Slight home advantage
-
-Randomized outcomes
-
-Monte Carlo Prediction
-
-Activated only during last 3 weeks
-
-Remaining matches simulated thousands of times
-
-Champion calculated for each iteration
-
-Probability percentage returned per team
-
-Statistical sampling is used instead of brute-force combinations for performance efficiency.
-
-🚀 Local Installation
-1. Clone Repository
+```bash
 git clone <repo-url>
 cd insider-one-league
-
-2. Install Backend
+2) Backend
 composer install
 cp .env.example .env
 php artisan key:generate
-
-
-Configure database inside .env.
-
-Run migrations:
+Configure your database in .env, then run migrations:
 
 php artisan migrate
-
-3. Install Frontend
+SQLite (optional)
+DB_CONNECTION=sqlite
+DB_DATABASE=database/database.sqlite
+touch database/database.sqlite
+php artisan migrate
+3) Frontend
 npm install
 npm run dev
-
-
-For production build:
+Production build:
 
 npm run build
-
-4. Run Application
+4) Run
 php artisan serve
-
-
 Open:
 
 http://localhost:8000/dashboard
 
-🐳 Docker
+Docker
 docker compose up -d --build
 docker compose exec app php artisan migrate
-
-🧪 Run Tests
+Tests
 php artisan test
-
-
-Test coverage includes:
+Covers:
 
 Full simulation flow
 
-Score edit recalculation
+Recalculation after score edits
 
-Prediction logic validation
+Prediction validation (last 3 weeks)
 
 API endpoint verification
 
-🔌 API Endpoints
+API Endpoints
 GET    /api/league
 GET    /api/teams
 POST   /api/teams
@@ -174,31 +142,15 @@ POST   /api/simulation/play-next-week
 POST   /api/simulation/play-all
 POST   /api/simulation/reset
 PATCH  /api/simulation/matches/{matchId}
+Notes
+Default league setup is based on a 6-week season.
 
-📌 Design Decisions
+Monte Carlo iteration count is selected with a performance/accuracy balance.
 
-Business logic fully separated from controllers
+UI is intentionally minimal; architecture is the main focus.
 
-Prediction logic isolated in its own service
+In production, make sure Vite build exists (public/build/manifest.json).
 
-DTO-based response structure
-
-Standings calculated dynamically
-
-Monte Carlo only active during last 3 weeks
-
-UI intentionally minimal — architecture prioritized
-
-🎯 Purpose
-
-This project demonstrates:
-
-Clean layered architecture
-
-Service-oriented backend structure
-
-Monte Carlo statistical modeling
-
-Maintainable and testable Laravel application design
-
-<p align="center"> © 2026 <strong>Furkan Adıgüzel</strong><br> <a href="https://furkanadiguzel.com/" target="_blank">https://furkanadiguzel.com/</a> </p>
+Copyright
+© 2026 Furkan Adıgüzel
+https://furkanadiguzel.com/
