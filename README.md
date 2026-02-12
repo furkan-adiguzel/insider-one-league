@@ -84,11 +84,13 @@ This keeps the codebase readable, testable, and easy to extend.
 
 ## Local Setup
 
+```bash
 ### 1) Clone
 
-```bash
+
 git clone <repo-url>
 cd insider-one-league
+
 2) Backend
 composer install
 cp .env.example .env
