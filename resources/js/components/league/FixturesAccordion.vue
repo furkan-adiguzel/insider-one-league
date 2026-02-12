@@ -6,7 +6,7 @@
 
         <div v-for="w in weeks" :key="w" class="rounded-lg border">
             <button
-                class="w-full flex items-center justify-between px-3 py-2 text-left"
+                class="cursor-pointer w-full flex items-center justify-between px-3 py-2 text-left"
                 @click="toggle(w)"
             >
                 <div class="font-medium">Week {{ w }}</div>
@@ -34,9 +34,7 @@
                             <template v-else>—</template>
                         </div>
 
-                        <button class="text-sm underline" @click="$emit('edit', m)">
-                            Edit
-                        </button>
+                        <button class="cursor-pointer px-3 py-1.5 text-xs font-medium rounded-lg bg-gray-100 text-gray-700 hover:bg-gray-200 transition" @click="$emit('edit', m)">Edit</button>
                     </div>
                 </div>
             </div>

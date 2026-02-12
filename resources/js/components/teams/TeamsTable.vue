@@ -34,8 +34,8 @@
 
                 <td class="py-2 pr-3">
                     <div class="flex gap-2">
-                        <button class="text-sm underline" @click="save(t.id)">Save</button>
-                        <button class="text-sm underline text-red-600" @click="$emit('delete', t.id)">Delete</button>
+                        <button class="cursor-pointer px-3 py-1.5 text-xs font-medium rounded-lg bg-gray-900 text-white hover:bg-gray-800 transition" @click="save(t.id)">Save</button>
+                        <button class="cursor-pointer px-3 py-1.5 text-xs font-medium rounded-lg bg-red-50 text-red-600 hover:bg-red-100 transition" @click="$emit('delete', t.id)">Delete</button>
                     </div>
                 </td>
             </tr>

@@ -70,7 +70,8 @@
                 <div class="mt-4 rounded-xl border border-gray-200 bg-gray-50 p-3">
                     <div class="text-xs text-gray-500">Notes</div>
                     <div class="text-sm text-gray-700 mt-1">
-                        Predictions appear in the last 3 weeks (Monte Carlo).
+                        Predictions appear in the last 3 weeks<br><br>
+                        Predictions are made using team power, current points, home advantage, etc. using the Monte Carlo system.
                     </div>
                     <div v-if="sim.error" class="text-sm text-red-600 mt-2">
                         {{ sim.error }}
