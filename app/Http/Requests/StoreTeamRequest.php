@@ -3,6 +3,7 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 final class StoreTeamRequest extends FormRequest
 {
@@ -11,7 +12,7 @@ final class StoreTeamRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'name' => ['required','string','max:80'],
+            'name'  => ['required','string','min:2','max:80', Rule::unique('teams', 'name')],
             'power' => ['required','integer','min:1','max:200'],
         ];
     }

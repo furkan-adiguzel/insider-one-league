@@ -13,7 +13,25 @@ export const useLeagueStore = defineStore('league', {
         standings: (s) => s.state?.standings ?? [],
         predictions: (s) => s.state?.predictions ?? [],
         fixturesByWeek: (s) => s.state?.fixturesByWeek ?? {},
+
+        hasFixtures(): boolean {
+            const map = this.fixturesByWeek
+            return !!map && Object.keys(map).length > 0
+        },
+
+        isFinished(): boolean {
+            return !!this.leagueInfo?.is_finished
+        },
+
+        canPlayNext(): boolean {
+            return this.hasFixtures && !this.isFinished
+        },
+
+        canPlayAll(): boolean {
+            return this.hasFixtures && !this.isFinished
+        },
     },
+
     actions: {
         async refresh() {
             this.loading = true
