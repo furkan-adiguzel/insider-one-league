@@ -7,23 +7,41 @@ use App\Models\Team;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
-class SimulationFlowTest extends TestCase
+final class SimulationFlowTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function test_full_flow(): void
+    private function seedLeague4Teams(): void
     {
-        $league = League::query()->create(['id' => 1, 'name' => 'L']);
-        Team::query()->create(['league_id'=>$league->id,'name'=>'A','power'=>90]);
-        Team::query()->create(['league_id'=>$league->id,'name'=>'B','power'=>10]);
-        Team::query()->create(['league_id'=>$league->id,'name'=>'C','power'=>60]);
-        Team::query()->create(['league_id'=>$league->id,'name'=>'D','power'=>40]);
+        $league = League::query()->create([
+            'name' => 'L',
+            // id verme zorunlu değil, auto increment daha sağlıklı
+        ]);
 
-        $this->postJson('/api/simulation/generate-fixtures')->assertOk();
-        $this->postJson('/api/simulation/play-next-week')->assertOk();
+        Team::query()->create(['league_id' => $league->id, 'name' => 'A', 'power' => 90]);
+        Team::query()->create(['league_id' => $league->id, 'name' => 'B', 'power' => 10]);
+        Team::query()->create(['league_id' => $league->id, 'name' => 'C', 'power' => 60]);
+        Team::query()->create(['league_id' => $league->id, 'name' => 'D', 'power' => 40]);
+    }
 
-        $this->getJson('/api/league')
+    public function test_full_flow_generate_and_play_next_week(): void
+    {
+        $this->seedLeague4Teams();
+
+        $this->postJson('/api/simulation/generate-fixtures')
             ->assertOk()
+            ->assertJsonPath('ok', true);
+
+        $this->postJson('/api/simulation/play-next-week')
+            ->assertOk()
+            ->assertJsonPath('ok', true);
+
+        $res = $this->getJson('/api/league')
+            ->assertOk()
+            ->assertJsonPath('ok', true)
             ->assertJsonPath('data.league.current_week', 1);
+
+        // Standings 4 takım dönmeli
+        $this->assertCount(4, $res->json('data.standings'));
     }
 }
