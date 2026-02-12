@@ -1,182 +1,164 @@
-Insider One – Champions League Simulation
+<p align="center"> <h1 align="center">Insider One – Champions League Simulation</h1> <p align="center"> Monte Carlo powered league simulation built with Laravel & Vue 3 </p> </p> <p align="center"> <a href="https://insider-one-league.furkanadiguzel.com/" target="_blank"> <img src="https://img.shields.io/badge/Live-Demo-success?style=for-the-badge" alt="Live Demo"> </a> <img src="https://img.shields.io/badge/Laravel-10-red?style=for-the-badge" alt="Laravel"> <img src="https://img.shields.io/badge/Vue-3-brightgreen?style=for-the-badge" alt="Vue 3"> <img src="https://img.shields.io/badge/Docker-Enabled-blue?style=for-the-badge" alt="Docker"> <img src="https://img.shields.io/badge/Tests-PHPUnit-informational?style=for-the-badge" alt="PHPUnit"> </p>
+🌐 Live Demo
 
-Insider One, küçük ölçekli bir lig ortamında haftalık maç simülasyonu yapan, puan tablosunu dinamik olarak hesaplayan ve son 3 haftada Monte Carlo yöntemi ile şampiyonluk olasılıklarını tahmin eden bir uygulamadır.
+You can explore the running application here:
 
-Backend tarafı Laravel, frontend tarafı Vue 3 ile geliştirilmiştir. Mimari olarak Service Pattern + DTO yaklaşımı kullanılmıştır.
+Main Site:
+https://insider-one-league.furkanadiguzel.com/
 
-Amaç yalnızca çalışan bir simülasyon üretmek değil; aynı zamanda sürdürülebilir, test edilebilir ve genişletilebilir bir yazılım mimarisi kurmaktır.
+Dashboard:
+https://insider-one-league.furkanadiguzel.com/dashboard
 
-🌐 Canlı Demo
+📖 About The Project
 
-Uygulamanın canlı versiyonunu aşağıdaki adresten inceleyebilirsiniz:
+Insider One is a league simulation engine that:
 
-👉 https://insider-one-league.furkanadiguzel.com/
+Simulates weekly football matches
 
-Dashboard’a doğrudan erişim:
+Calculates standings dynamically
 
-👉 https://insider-one-league.furkanadiguzel.com/dashboard
+Recalculates rankings after score edits
 
-🚀 Tech Stack
+Runs Monte Carlo prediction during the last 3 weeks
 
-Laravel
+Displays championship probability percentages
 
-Vue 3
+The goal of this project is not only to simulate matches, but to demonstrate:
 
-Service Pattern
+Clean architecture
 
-DTO (Data Transfer Object)
+Separation of concerns
 
-Monte Carlo Simulation
+Testable service layer
 
-PHPUnit
+Extendable simulation logic
 
-Docker
+🏗️ Architecture
 
-Vite
+This project follows a layered architecture:
 
-🏗️ Mimari Yaklaşım
+Controller Layer → Handles only HTTP requests & responses
 
-Proje katmanlı bir yapı ile geliştirilmiştir:
+Service Layer → Contains all business logic
 
-Controller → Sadece request/response yönetir.
+DTO Layer → Standardizes API response structures
 
-Service Layer → Tüm business logic burada yer alır.
+Simulation Service → Match logic abstraction
 
-DTO → Veri transferi ve response formatı için kullanılır.
+Prediction Service → Monte Carlo engine
 
-Simulation & Prediction Services → Ayrı servisler olarak tasarlanmıştır.
+No direct business logic exists inside controllers.
 
-Controller içinde doğrudan DB query yapılmaz.
+Standings are always calculated dynamically — never persisted.
 
-Bu yapı sayesinde:
+⚙️ Features
 
-Kod okunabilir ve test edilebilir kalır.
+Team CRUD
 
-Business logic UI’dan tamamen ayrıdır.
+Round-robin fixture generation
 
-Prediction algoritması kolayca değiştirilebilir.
+Play next week
 
-Genişletilebilir ve sürdürülebilir bir yapı elde edilir.
+Play full season
 
-⚽ Özellikler
+Score editing
 
-Takım ekleme / düzenleme / silme
+Automatic standings recalculation
 
-Round-robin fixture üretimi
+Monte Carlo championship prediction (last 3 weeks only)
 
-Haftalık simülasyon
+Full API support
 
-Tüm haftaları otomatik oynatma
+Unit & feature tests
 
-Skor düzenleme
+🧠 Simulation Logic
+Deterministic Standings
 
-Skor değişiminde otomatik puan tablosu yeniden hesaplama
+3 points for win
 
-Son 3 haftada Monte Carlo ile şampiyonluk olasılığı hesaplama
+1 point for draw
 
-Dashboard üzerinden tüm süreci yönetebilme
+Ranking priority:
 
-🧠 Simülasyon Mantığı
-📊 Standings (Deterministic)
+Points
 
-Oynanmış maç skorlarından hesaplanır.
+Goal difference
 
-3 puan galibiyet, 1 puan beraberlik.
+Goals scored
 
-Sıralama kriterleri:
+Match Simulation
 
-Puan
+Based on team power rating
 
-Averaj
+Probabilistic scoring
 
-Atılan gol
+Slight home advantage
 
-Standings verisi DB’ye kalıcı olarak yazılmaz; her istek sırasında hesaplanır.
+Randomized outcomes
 
-🎲 Match Simulation
+Monte Carlo Prediction
 
-Takımların power değeri dikkate alınır.
+Activated only during last 3 weeks
 
-Güç oranına göre probabilistic skor üretilir.
+Remaining matches simulated thousands of times
 
-Ev sahibi takıma küçük avantaj tanımlanmıştır.
+Champion calculated for each iteration
 
-Simülasyon deterministic değildir (randomized).
+Probability percentage returned per team
 
-🔮 Prediction (Monte Carlo)
+Statistical sampling is used instead of brute-force combinations for performance efficiency.
 
-Sadece son 3 haftada aktif olur.
-
-Kalan maçlar binlerce kez simüle edilir.
-
-Her iterasyonda şampiyon belirlenir.
-
-Sonuç olarak her takım için yüzde bazlı şampiyonluk ihtimali hesaplanır.
-
-Bu yaklaşım brute force kombinasyon yerine istatistiksel örnekleme kullanır ve performans açısından optimize edilmiştir.
-
-🛠️ Kurulum (Local)
-1️⃣ Repository Klonla
+🚀 Local Installation
+1. Clone Repository
 git clone <repo-url>
 cd insider-one-league
 
-2️⃣ Backend Kurulumu
+2. Install Backend
 composer install
 cp .env.example .env
 php artisan key:generate
 
 
-Database ayarlarını .env içinde yapılandır.
+Configure database inside .env.
 
-SQLite kullanmak için:
+Run migrations:
 
-DB_CONNECTION=sqlite
-DB_DATABASE=database/database.sqlite
-
-
-Ardından:
-
-touch database/database.sqlite
 php artisan migrate
 
-3️⃣ Frontend Kurulumu
+3. Install Frontend
 npm install
 npm run dev
 
 
-Production build için:
+For production build:
 
 npm run build
 
-4️⃣ Uygulamayı Başlat
+4. Run Application
 php artisan serve
 
 
-Local erişim:
+Open:
 
 http://localhost:8000/dashboard
 
-🐳 Docker ile Çalıştırma
+🐳 Docker
 docker compose up -d --build
-
-
-Migration:
-
 docker compose exec app php artisan migrate
 
-🧪 Test Çalıştırma
+🧪 Run Tests
 php artisan test
 
 
-Test kapsamı:
+Test coverage includes:
 
 Full simulation flow
 
-Score edit sonrası recalculation
+Score edit recalculation
 
-Prediction (son 3 hafta) doğrulaması
+Prediction logic validation
 
-API endpoint doğrulamaları
+API endpoint verification
 
 🔌 API Endpoints
 GET    /api/league
@@ -193,45 +175,30 @@ POST   /api/simulation/play-all
 POST   /api/simulation/reset
 PATCH  /api/simulation/matches/{matchId}
 
-📌 Tasarım Kararları
+📌 Design Decisions
 
-Controller içinde business logic bulunmaz.
+Business logic fully separated from controllers
 
-Prediction Service ayrı tutulmuştur.
+Prediction logic isolated in its own service
 
-Match simulation soyutlanmıştır (farklı algoritmalar eklenebilir).
+DTO-based response structure
 
-Standings DB’ye persist edilmez.
+Standings calculated dynamically
 
-DTO ile response yapısı sabit tutulur.
+Monte Carlo only active during last 3 weeks
 
-Prediction yalnızca son 3 haftada çalışır (gereksiz hesaplama yapılmaz).
+UI intentionally minimal — architecture prioritized
 
-Mimari önceliklidir, UI minimal tutulmuştur.
+🎯 Purpose
 
-📎 Notlar
+This project demonstrates:
 
-Varsayılan lig yapısı 6 haftalık örnek üzerinden çalışır.
+Clean layered architecture
 
-Monte Carlo iteration sayısı performans/doğruluk dengesi gözetilerek belirlenmiştir.
+Service-oriented backend structure
 
-Production ortamında Vite build gereklidir (public/build/manifest.json).
+Monte Carlo statistical modeling
 
-🎯 Sonuç
+Maintainable and testable Laravel application design
 
-Bu proje:
-
-Katmanlı mimari
-
-Test edilebilir servis yapısı
-
-Ayrılmış business logic
-
-Genişletilebilir prediction algoritması
-
-Temiz separation of concerns
-
-gibi yazılım prensiplerini göstermek amacıyla geliştirilmiştir.
-
-© Furkan Adıgüzel
-https://furkanadiguzel.com/
+<p align="center"> © 2026 <strong>Furkan Adıgüzel</strong><br> <a href="https://furkanadiguzel.com/" target="_blank">https://furkanadiguzel.com/</a> </p>
