@@ -92,7 +92,6 @@ The project follows a layered design:
 Statistical sampling is used instead of brute-force combinations for performance efficiency.
 
 ---
-```bash
 
 ## 🚀 Local Setup
 
