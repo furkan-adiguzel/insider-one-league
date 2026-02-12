@@ -125,7 +125,7 @@ php artisan serve
 Open:
 ```bash
 http://localhost:8000/dashboard
-
+```
 🐳 Docker
 ```bash
 docker compose up -d --build
