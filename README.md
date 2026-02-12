@@ -1,12 +1,12 @@
 # Insider One – Champions League Simulation
 
-Bu proje, küçük ölçekli bir lig ortamında haftalık maç simülasyonu yapan, puan tablosunu hesaplayan ve son 3 haftada Monte Carlo yöntemi ile şampiyonluk olasılıklarını tahmin eden bir uygulamadır.
+Bu proje, küçük ölçekli bir lig ortamında haftalık maç simülasyonu yapan, puan tablosunu hesaplayan ve son **3 haftada** Monte Carlo yöntemi ile şampiyonluk olasılıklarını tahmin eden bir uygulamadır.
 
-Backend tarafı Laravel ile, frontend tarafı Vue 3 ile geliştirilmiştir. Mimari olarak Service Pattern + DTO yaklaşımı kullanılmıştır. Amaç yalnızca çalışır bir simülasyon değil, aynı zamanda sürdürülebilir, test edilebilir ve genişletilebilir bir yapı kurmaktır.
+Backend Laravel, frontend Vue 3 ile geliştirilmiştir. Mimari olarak Service Pattern + DTO yaklaşımı kullanılmıştır. Controller katmanında business logic tutulmaz; iş mantığı servis katmanındadır.
 
 ---
 
-## 🚀 Tech Stack
+## Tech Stack
 
 - Laravel
 - Vue 3
@@ -14,186 +14,125 @@ Backend tarafı Laravel ile, frontend tarafı Vue 3 ile geliştirilmiştir. Mima
 - DTO (Data Transfer Object)
 - Monte Carlo Simulation
 - PHPUnit
-- Docker
 
 ---
 
-## 🏗️ Mimari Yaklaşım
-
-Proje katmanlı bir yapı ile geliştirilmiştir:
+## Mimari Yaklaşım (Kısa)
 
 - Controller → sadece request/response yönetir.
-- Service Layer → tüm business logic burada yer alır.
-- DTO → veri transferi ve response formatı için kullanılır.
-- Prediction & Simulation → ayrı servisler olarak tasarlanmıştır.
+- Service Layer → business logic burada.
+- DTO → response formatı ve veri transferi için.
+- Standings (deterministic) ve Prediction (probabilistic) ayrı servislerdir.
 - Controller içinde doğrudan DB query yapılmaz.
-
-Bu yapı sayesinde:
-- Kod okunabilir ve test edilebilir kalır.
-- Business logic UI’dan tamamen ayrıdır.
-- Prediction algoritması kolayca değiştirilebilir.
 
 ---
 
-## ⚽ Özellikler
+## Özellikler
 
 - Takım ekleme / düzenleme / silme
 - Fixture üretme (round-robin)
 - Haftalık simülasyon
 - Tüm haftaları oynatma
-- Skor düzenleme
-- Skor değişiminde puan tablosunun yeniden hesaplanması
-- Son 3 haftada şampiyonluk olasılığı (Monte Carlo)
+- Skor düzenleme ve puan tablosunu yeniden hesaplama
+- Son 3 haftada Monte Carlo ile şampiyonluk olasılığı
 
 ---
 
-## 🧠 Simülasyon Mantığı
+## Simülasyon Mantığı
 
 ### Standings (Deterministic)
-
-- Oynanmış maç skorlarından hesaplanır.
+- Sadece oynanmış maç skorlarından hesaplanır.
 - 3 puan galibiyet, 1 puan beraberlik.
-- Sıralama kriteri:
-  1. Puan
-  2. Averaj
-  3. Atılan gol
+- Sıralama: Puan → Averaj → Atılan gol.
 
-Standings verisi DB’ye kalıcı yazılmaz, her seferinde hesaplanır.
-
----
+> Not: Standings DB’ye “hazır tablo” olarak yazılmaz; her istek anında yeniden hesaplanır.
 
 ### Match Simulation
-
-- Takımların power değeri dikkate alınır.
-- Güç oranına göre probabilistic skor üretilir.
+- Takımların `power` değeri dikkate alınır.
+- Güç oranına göre probabilistic skor üretilir (random).
 - Ev sahibi küçük avantaj içerir.
-- Simülasyon deterministic değildir (randomized).
-
----
 
 ### Prediction (Monte Carlo)
-
-- Sadece son 3 haftada aktif olur.
+- Prediction yalnızca **son 3 haftada** aktif olur.
 - Kalan maçlar binlerce kez simüle edilir.
-- Her iterasyonda şampiyon belirlenir.
-- Sonuç olarak her takım için yüzde bazlı şampiyonluk ihtimali hesaplanır.
-
-Bu yaklaşım brute force kombinasyon yerine istatistiksel örnekleme kullanır.
+- Her iterasyonda şampiyon belirlenir ve sayaç tutulur.
+- Sonuç olarak yüzde bazlı şampiyonluk ihtimali hesaplanır.
 
 ---
 
-## 🛠️ Kurulum (Local)
+## Kurulum (Local)
 
-### 1. Repo Klonla
+### 1) Repo’yu klonla
 
-- git clone https://github.com/furkan-adiguzel/insider-one-league
-- cd insider-one-league
+```bash
+git clone <repo-url>
+cd insider-one-league
+2) Backend bağımlılıkları
+composer install
+cp .env.example .env
+php artisan key:generate
+3) Database ayarı (XAMPP / MySQL / başka DB olabilir)
+Bu proje bir veritabanı ister. XAMPP (MySQL/MariaDB) kullanabilirsin veya kendi DB’n neyse onu kullanabilirsin.
 
----
+DB oluştur (örnek: insider_one_league)
 
-### 2. Backend Kurulumu
+.env dosyasında DB bilgilerini doldur:
 
--composer install
--cp .env.example .env
--php artisan key:generate
+DB_CONNECTION=mysql
+DB_HOST=127.0.0.1
+DB_PORT=3306
+DB_DATABASE=insider_one_league
+DB_USERNAME=root
+DB_PASSWORD=
+Eğer başka bir DB kullanıyorsan (pgsql vs), DB_CONNECTION ve ilgili ayarları ona göre düzenle.
 
-Database ayarlarını .env içinde yap.
-
-SQLite kullanmak için:
-
-DB_CONNECTION=sqlite
-DB_DATABASE=database/database.sqlite
-
-Ardından:
-
-touch database/database.sqlite
+4) Migration çalıştır
 php artisan migrate
-
----
-
-### 3. Frontend Kurulumu
-
+5) Frontend bağımlılıkları
 npm install
-npm run dev
-
----
-
-### 4. Uygulamayı Başlat
+6) Development server’ları çalıştır
+Bir terminal:
 
 php artisan serve
+İkinci terminal:
 
-Frontend arayüz:
+npm run dev
+UI:
+
 http://localhost:8000/ui
-
----
-
-## 🐳 Docker ile Çalıştırma
-
-docker compose up -d --build
-
-Migration:
-
-docker compose exec app php artisan migrate
-
----
-
-## 🧪 Test Çalıştırma
-
+Test Çalıştırma
 php artisan test
+Testlerde SQLite memory kullanmak istersen .env.testing şu şekilde olabilir:
 
-Test kapsamı:
+APP_ENV=testing
+APP_DEBUG=false
 
-- Full simulation flow
-- Score edit sonrası recalculation
-- Prediction (son 3 hafta) kontrolü
-- API endpoint doğrulamaları
+DB_CONNECTION=sqlite
+DB_DATABASE=:memory:
 
----
+CACHE_STORE=array
+SESSION_DRIVER=array
+QUEUE_CONNECTION=sync
+Not: Windows’ta SQLite driver yoksa (pdo_sqlite/sqlite3), test DB’sini MySQL test DB’ye yönlendirebilirsin.
 
-## 🔌 API Endpoints
+API Endpoints
+GET    /api/league
 
-GET    /api/league  
-GET    /api/teams  
-POST   /api/teams  
-PATCH  /api/teams/{teamId}  
-DELETE /api/teams/{teamId}  
+GET    /api/teams
+POST   /api/teams
+PATCH  /api/teams/{teamId}
+DELETE /api/teams/{teamId}
 
-GET    /api/fixtures  
+GET    /api/fixtures
 
-POST   /api/simulation/generate-fixtures  
-POST   /api/simulation/play-next-week  
-POST   /api/simulation/play-all  
-POST   /api/simulation/reset  
-PATCH  /api/simulation/matches/{matchId}  
+POST   /api/simulation/generate-fixtures
+POST   /api/simulation/play-next-week
+POST   /api/simulation/play-all
+POST   /api/simulation/reset
+PATCH  /api/simulation/matches/{matchId}
+Notlar
+Varsayılan lig 6 haftalık format üzerinden ilerler.
 
----
+Prediction (Monte Carlo) yalnızca son 3 haftada çalışır (performans için).
 
-## 📌 Tasarım Kararları
-
-- Controller içinde business logic yoktur.
-- Prediction Service ayrı tutulmuştur.
-- Match simulation soyutlanmıştır (gelecekte farklı algoritmalar eklenebilir).
-- Standings DB’ye persist edilmez.
-- DTO ile response yapısı sabit tutulur.
-- Prediction yalnızca son 3 haftada çalışır (gereksiz hesaplama yapılmaz).
-
----
-
-## 📎 Notlar
-
-- Varsayılan lig 6 haftalık yapı üzerinden çalışır.
-- Iteration sayısı performans ve doğruluk dengesi gözetilerek belirlenmiştir.
-- UI sade tutulmuştur; mimari önceliklidir.
-
----
-
-## 🎯 Sonuç
-
-Bu proje:
-
-- Katmanlı mimari,
-- Test edilebilir servis yapısı,
-- Ayrılmış business logic,
-- Genişletilebilir prediction algoritması
-
-gibi yazılım prensiplerini göstermek amacıyla geliştirilmiştir.
+UI sade ama akışın tamamını kapsar (takım → fixture → simülasyon → edit → standings/prediction).
