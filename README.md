@@ -1,59 +1,198 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+Insider One – Champions League Simulation
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+Bu proje, küçük bir lig ortamında haftalık maç simülasyonu yapan, puan tablosunu hesaplayan ve son 3 haftada Monte Carlo yöntemi ile şampiyonluk olasılıklarını tahmin eden bir uygulamadır.
 
-## About Laravel
+Backend Laravel ile, frontend Vue 3 ile geliştirilmiştir. Mimari olarak Service Pattern + DTO yaklaşımı kullanılmıştır. Amaç yalnızca çalışır bir simülasyon değil, aynı zamanda sürdürülebilir ve test edilebilir bir yapı kurmaktır.
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+Tech Stack
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+Laravel
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+Vue 3
 
-## Learning Laravel
+Service Pattern
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework. You can also check out [Laravel Learn](https://laravel.com/learn), where you will be guided through building a modern Laravel application.
+DTO
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+Monte Carlo Simulation
 
-## Laravel Sponsors
+SQLite (test için memory)
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+Docker
 
-### Premium Partners
+Genel Mimari
 
-- **[Vehikl](https://vehikl.com)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Redberry](https://redberry.international/laravel-development)**
-- **[Active Logic](https://activelogic.com)**
+Controller katmanında iş mantığı bulunmaz.
+Controller → Service → Repository/Model akışı izlenir.
 
-## Contributing
+Controller yalnızca request alır ve response döner.
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+Business logic Service katmanındadır.
 
-## Code of Conduct
+Data transfer için DTO kullanılır.
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+Prediction, Standings ve Match simulation ayrı servislerdir.
 
-## Security Vulnerabilities
+SOLID prensiplerine dikkat edilmiştir.
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+Özellikle:
 
-## License
+Standings hesaplaması deterministic (gerçek maçlara göre)
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+Prediction hesaplaması probabilistic (Monte Carlo)
+
+Özellikler
+
+Takım ekleme / düzenleme / silme
+
+Fixture üretme
+
+Haftalık simülasyon
+
+Tüm haftaları oynatma
+
+Skor düzenleme ve puan tablosunun yeniden hesaplanması
+
+Son 3 haftada şampiyonluk olasılığı hesaplama
+
+Simülasyon Mantığı
+Standings
+
+Oynanmış maç skorlarından puan tablosu oluşturulur.
+
+3 puan galibiyet, 1 puan beraberlik.
+
+Sıralama: Puan → Averaj → Atılan gol.
+
+Match Simulation
+
+Takım power değerleri dikkate alınır.
+
+Güç oranına göre probabilistic skor üretilir.
+
+Ev sahibi küçük avantaj içerir.
+
+Prediction (Monte Carlo)
+
+Son 3 haftada aktif olur.
+
+Kalan maçlar binlerce kez simüle edilir.
+
+Her iterasyonda şampiyon belirlenir.
+
+Sonuç olarak her takım için % şampiyonluk olasılığı hesaplanır.
+
+Kurulum
+1. Repo klonla
+git clone <repo-url>
+cd insider-one-league
+
+2. Backend kurulumu
+composer install
+cp .env.example .env
+php artisan key:generate
+
+
+Database ayarını .env içinde yap.
+
+SQLite kullanmak istersen:
+
+DB_CONNECTION=sqlite
+DB_DATABASE=database/database.sqlite
+
+
+Sonra:
+
+touch database/database.sqlite
+php artisan migrate
+
+3. Frontend kurulumu
+npm install
+npm run dev
+
+4. Uygulamayı çalıştır
+php artisan serve
+
+
+Frontend:
+
+http://localhost:8000/ui
+
+Docker ile Çalıştırma
+
+Projede Dockerfile ve docker-compose mevcuttur.
+
+docker compose up -d --build
+
+
+Migration:
+
+docker compose exec app php artisan migrate
+
+Test Çalıştırma
+
+Testler SQLite memory üzerinde çalışır.
+
+php artisan test
+
+
+Test kapsamı:
+
+Full simulation flow
+
+Edit sonrası recalculation
+
+Prediction last 3 weeks gate
+
+API endpoint doğrulamaları
+
+API Endpoints
+GET    /api/league
+GET    /api/teams
+POST   /api/teams
+PATCH  /api/teams/{teamId}
+DELETE /api/teams/{teamId}
+
+GET    /api/fixtures
+
+POST   /api/simulation/generate-fixtures
+POST   /api/simulation/play-next-week
+POST   /api/simulation/play-all
+POST   /api/simulation/reset
+PATCH  /api/simulation/matches/{matchId}
+
+Önemli Tasarım Kararları
+
+Controller içinde DB query yapılmaz.
+
+Prediction Service ayrı tutulmuştur.
+
+Match simulation soyutlanmıştır (ileride farklı algoritma eklenebilir).
+
+Standings DB’ye persist edilmez; her seferinde hesaplanır.
+
+DTO ile response yapısı sabit tutulur.
+
+Prediction yalnızca son 3 haftada çalışır (gereksiz hesaplama yapılmaz).
+
+Notlar
+
+Varsayılan lig 6 haftalık round-robin mantığı ile çalışır.
+
+Iteration sayısı performans/güvenilirlik dengesi gözetilerek belirlenmiştir.
+
+UI basit ama fonksiyonel tutulmuştur; mimari önceliklidir.
+
+Sonuç
+
+Bu proje yalnızca bir maç simülasyonu değil;
+
+Katmanlı mimari,
+
+Test edilebilir servis yapısı,
+
+Ayrılmış business logic,
+
+Genişletilebilir prediction algoritması
+
+gibi yazılım prensiplerini göstermek amacıyla geliştirilmiştir.
