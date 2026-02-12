@@ -10,7 +10,7 @@
             <UiInput type="number" min="1" max="200" v-model="power" />
         </div>
 
-        <UiButton :disabled="busy || !canSubmit" variant="primary">Add</UiButton>
+        <UiButton type="submit" :disabled="busy || !canSubmit" variant="primary">Add</UiButton>
     </form>
 </template>
 
