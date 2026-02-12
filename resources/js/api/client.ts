@@ -3,6 +3,11 @@ import { ApiError } from './errors'
 
 type HttpMethod = 'GET' | 'POST' | 'PATCH' | 'DELETE'
 
+type LaravelValidationError = {
+    message?: string
+    errors?: Record<string, string[]>
+}
+
 export class ApiClient {
     constructor(private readonly baseUrl = '') {}
 
@@ -36,9 +41,9 @@ export class ApiClient {
             })
         }
 
-        let json: ApiEnvelope<T> | null = null
+        let parsed: any
         try {
-            json = JSON.parse(raw) as ApiEnvelope<T>
+            parsed = JSON.parse(raw)
         } catch {
             throw new ApiError({
                 type: 'invalid_json',
@@ -47,12 +52,41 @@ export class ApiClient {
             })
         }
 
-        if (!json.ok) {
-            if (json.error) throw new ApiError(json.error)
-            throw new ApiError({ type: 'unknown_error', message: 'Unknown error', code: res.status })
+        if (parsed && typeof parsed === 'object' && 'ok' in parsed) {
+            const env = parsed as ApiEnvelope<T>
+
+            if (!env.ok) {
+                if (env.error) throw new ApiError(env.error)
+                throw new ApiError({ type: 'unknown_error', message: 'Unknown error', code: res.status })
+            }
+
+            return env.data
         }
 
-        return json.data
+        if (parsed && typeof parsed === 'object' && ('errors' in parsed || 'message' in parsed)) {
+            const v = parsed as LaravelValidationError
+
+            if (!res.ok) {
+                throw new ApiError({
+                    type: res.status === 422 ? 'validation_error' : 'http_error',
+                    message: v.message ?? `Request failed (${res.status}).`,
+                    code: res.status,
+                    fields: v.errors,
+                })
+            }
+
+            return parsed as T
+        }
+
+        if (!res.ok) {
+            throw new ApiError({
+                type: 'http_error',
+                message: `Request failed (${res.status}).`,
+                code: res.status,
+            })
+        }
+
+        return parsed as T
     }
 
     get<T>(path: string) { return this.request<T>('GET', path) }
