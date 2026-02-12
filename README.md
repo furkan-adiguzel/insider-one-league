@@ -131,7 +131,7 @@ php artisan migrate
 
 Option B — Remote Database (Recommended for simplicity)
 
-Instead of installing XAMPP or a local database, you can directly connect to a remote MySQL server (for example, a GüzelHosting database).
+Instead of installing XAMPP or a local database, you can directly connect to a remote MySQL server (for example, a Amazon Remote database).
 
 Example:
 ```bash
