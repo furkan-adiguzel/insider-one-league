@@ -6,7 +6,7 @@
         </div>
 
         <div v-if="predictions.length === 0" class="mt-2 text-sm text-gray-600">
-            Predictions will appear in the last 2 weeks.
+            Predictions will appear in the last 3 weeks.
         </div>
 
         <div v-else class="mt-3 space-y-2">
