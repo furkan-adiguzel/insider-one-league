@@ -29,7 +29,6 @@ final class EditMatchScoreAction
             'is_edited' => true,
         ]);
 
-        // league state update (optional but consistent)
         if ((int)$match->week > (int)$league->current_week) {
             $league->current_week = (int)$match->week;
         }

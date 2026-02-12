@@ -47,7 +47,6 @@ final class GetLeagueStateAction
 
         $predictions = [];
         if ((int)$league->current_week >= ((int)$league->total_weeks - 3)) {
-            // base table for MC
             $base = [];
             foreach ($standings as $r) {
                 $base[$r->teamId] = [

@@ -23,8 +23,6 @@ final class ResetLeagueAction
         DB::transaction(function () use ($league, $leagueId) {
             $this->matches->deleteByLeague($leagueId);
 
-            // istersen takım silmeyelim; video "Reset Data" tamamen reset gibi duruyor
-            // Tam reset:
             foreach ($this->teams->allByLeague($leagueId) as $t) {
                 $this->teams->delete($leagueId, (int)$t->id);
             }
