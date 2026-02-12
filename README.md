@@ -97,7 +97,7 @@ Statistical sampling is used instead of brute-force combinations for performance
 
 1️⃣ Clone
 ```bash
-git clone https://github.com/furkan-adiguzel/insider-one-league/
+git clone https://github.com/furkan-adiguzel/insider-one-league.git
 cd insider-one-league
 ```
 
