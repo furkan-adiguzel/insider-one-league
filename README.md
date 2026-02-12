@@ -96,32 +96,43 @@ Statistical sampling is used instead of brute-force combinations for performance
 ## 🚀 Local Setup
 
 1️⃣ Clone
-git clone <repo-url>
+```bash
+git clone https://github.com/furkan-adiguzel/insider-one-league/
 cd insider-one-league
+```
 
 2️⃣ Backend
+```bash
 composer install
 cp .env.example .env
 php artisan key:generate
 php artisan migrate
+```
 
 SQLite (optional)
-
+```bash
 DB_CONNECTION=sqlite
 DB_DATABASE=database/database.sqlite
 
 touch database/database.sqlite
 php artisan migrate
+```
 
 3️⃣ Frontend
+```bash
 npm install
 npm run dev
+```
 
 Production build:
+```bash
 npm run build
+```
 
 4️⃣ Run
+```bash
 php artisan serve
+```
 Open:
 ```bash
 http://localhost:8000/dashboard
