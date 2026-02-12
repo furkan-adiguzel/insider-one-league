@@ -1,84 +1,138 @@
 <template>
     <div class="space-y-6">
+        <!-- TOP: Title + status -->
         <UiCard>
-            <LeagueHeader
-                :league="league.leagueInfo"
-                :loading="league.loading"
-                :error="league.error"
-                @refresh="reloadAll"
-            />
+            <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                <div>
+                    <div class="text-xs text-gray-500">League</div>
+                    <div class="text-2xl font-semibold tracking-tight">
+                        {{ league.leagueInfo?.name ?? 'Insider One League' }}
+                    </div>
+
+                    <div class="mt-1 text-sm text-gray-600">
+                        Week:
+                        <span class="font-semibold text-gray-900">{{ league.leagueInfo?.current_week ?? 0 }}</span>
+                        /
+                        {{ league.leagueInfo?.total_weeks ?? 0 }}
+                        <span v-if="league.leagueInfo?.is_finished" class="ml-2 inline-flex items-center rounded-full bg-green-50 px-2 py-0.5 text-xs font-medium text-green-700">
+              Finished
+            </span>
+                        <span v-else-if="league.leagueInfo?.is_started" class="ml-2 inline-flex items-center rounded-full bg-blue-50 px-2 py-0.5 text-xs font-medium text-blue-700">
+              Running
+            </span>
+                        <span v-else class="ml-2 inline-flex items-center rounded-full bg-gray-100 px-2 py-0.5 text-xs font-medium text-gray-700">
+              Not started
+            </span>
+                    </div>
+
+                    <div v-if="league.error" class="mt-2 text-sm text-red-600">
+                        {{ league.error }}
+                    </div>
+                </div>
+
+                <div class="flex flex-wrap items-center gap-2">
+                    <UiButton :disabled="league.loading || sim.busy" variant="ghost" @click="reloadAll" size="sm">
+                        Refresh
+                    </UiButton>
+                    <UiButton :disabled="sim.busy" variant="danger" @click="onReset" size="sm">
+                        Reset
+                    </UiButton>
+                </div>
+            </div>
         </UiCard>
 
-        <div class="grid gap-6 md:grid-cols-3">
-            <UiCard class="md:col-span-1">
-                <div class="font-semibold mb-3">Simulation</div>
+        <!-- MAIN GRID -->
+        <div class="grid gap-6 lg:grid-cols-3">
+            <!-- LEFT: Simulation -->
+            <UiCard class="lg:col-span-1">
+                <div class="flex items-start justify-between gap-3">
+                    <div>
+                        <div class="text-xs text-gray-500">Controls</div>
+                        <div class="text-lg font-semibold">Simulation</div>
+                    </div>
+                    <div v-if="sim.busy">
+                        <UiSpinner>Working…</UiSpinner>
+                    </div>
+                </div>
 
-                <div class="space-y-2">
+                <div class="mt-4 grid gap-2">
                     <UiButton :disabled="sim.busy" variant="primary" @click="onGenerate">
                         Generate Fixtures
                     </UiButton>
-
                     <UiButton :disabled="sim.busy" @click="onPlayNext">
                         Play Next Week
                     </UiButton>
-
                     <UiButton :disabled="sim.busy" @click="onPlayAll">
                         Play All
                     </UiButton>
+                </div>
 
-                    <UiButton :disabled="sim.busy" variant="danger" @click="onReset">
-                        Reset Data
-                    </UiButton>
-
-                    <div v-if="sim.busy" class="pt-2">
-                        <UiSpinner>Working…</UiSpinner>
+                <div class="mt-4 rounded-xl border border-gray-200 bg-gray-50 p-3">
+                    <div class="text-xs text-gray-500">Notes</div>
+                    <div class="text-sm text-gray-700 mt-1">
+                        Predictions appear in the last 2 weeks (Monte Carlo).
                     </div>
-
-                    <div v-if="sim.error" class="text-sm text-red-600 pt-2">
+                    <div v-if="sim.error" class="text-sm text-red-600 mt-2">
                         {{ sim.error }}
                     </div>
+                </div>
 
-                    <div class="text-xs text-gray-500 pt-2">
-                        Note: Predictions show in the last 2 weeks (Monte Carlo).
-                    </div>
+                <div class="mt-4">
+                    <PredictionsPanel :predictions="league.predictions" />
                 </div>
             </UiCard>
 
-            <UiCard class="md:col-span-2">
-                <div class="flex items-center justify-between mb-3">
-                    <div class="font-semibold">Standings</div>
-                    <UiButton :disabled="league.loading" @click="reloadAll">Refresh</UiButton>
+            <!-- RIGHT: Standings -->
+            <UiCard class="lg:col-span-2">
+                <div class="flex items-end justify-between gap-3">
+                    <div>
+                        <div class="text-xs text-gray-500">Table</div>
+                        <div class="text-lg font-semibold">Standings</div>
+                    </div>
+                    <UiButton :disabled="league.loading || sim.busy" variant="ghost" size="sm" @click="reloadAll">
+                        Refresh
+                    </UiButton>
                 </div>
 
-                <div v-if="league.loading"><UiSpinner>Loading league…</UiSpinner></div>
-                <div v-else>
+                <div class="mt-4" v-if="league.loading">
+                    <UiSpinner>Loading league…</UiSpinner>
+                </div>
+                <div class="mt-4" v-else>
                     <StandingsTable :rows="league.standings" />
                 </div>
             </UiCard>
         </div>
 
-        <UiCard>
-            <PredictionsPanel :predictions="league.predictions" />
-        </UiCard>
-
-        <div class="grid gap-6 md:grid-cols-2">
+        <!-- LOWER GRID -->
+        <div class="grid gap-6 lg:grid-cols-2">
             <UiCard>
-                <div class="font-semibold mb-3">Fixtures</div>
-                <FixturesAccordion
-                    :fixturesByWeek="league.fixturesByWeek"
-                    @edit="openEdit"
-                />
+                <div class="flex items-end justify-between">
+                    <div>
+                        <div class="text-xs text-gray-500">Schedule</div>
+                        <div class="text-lg font-semibold">Fixtures</div>
+                    </div>
+                </div>
+
+                <div class="mt-4">
+                    <FixturesAccordion :fixturesByWeek="league.fixturesByWeek" @edit="openEdit" />
+                </div>
             </UiCard>
 
             <UiCard>
-                <div class="font-semibold mb-3">Weekly Results</div>
-                <WeekResultsList :fixturesByWeek="league.fixturesByWeek" />
+                <div>
+                    <div class="text-xs text-gray-500">History</div>
+                    <div class="text-lg font-semibold">Weekly Results</div>
+                </div>
+
+                <div class="mt-4">
+                    <WeekResultsList :fixturesByWeek="league.fixturesByWeek" />
+                </div>
             </UiCard>
         </div>
 
         <MatchEditModal
             v-if="edit.open"
-            :match="edit.match"
+            :match="edit.match!"
             :busy="sim.busy"
             @close="edit.open = false"
             @save="saveEdit"
@@ -91,12 +145,11 @@ import { reactive, onMounted } from 'vue'
 import UiCard from '../components/ui/UiCard.vue'
 import UiButton from '../components/ui/UiButton.vue'
 import UiSpinner from '../components/ui/UiSpinner.vue'
-import LeagueHeader from '../components/league/LeagueHeader.vue'
 import StandingsTable from '../components/league/StandingsTable.vue'
 import PredictionsPanel from '../components/league/PredictionsPanel.vue'
 import FixturesAccordion from '../components/league/FixturesAccordion.vue'
-import MatchEditModal from '../components/league/MatchEditModal.vue'
 import WeekResultsList from '../components/league/WeekResultsList.vue'
+import MatchEditModal from '../components/league/MatchEditModal.vue'
 
 import { useLeagueStore } from '../stores/leagueStore'
 import { useSimulationStore } from '../stores/simulationStore'
@@ -174,7 +227,5 @@ async function onReset() {
     }
 }
 
-onMounted(async () => {
-    await reloadAll()
-})
+onMounted(reloadAll)
 </script>
