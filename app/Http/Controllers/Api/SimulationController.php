@@ -7,11 +7,15 @@ use App\Application\League\GenerateFixturesAction;
 use App\Application\League\PlayAllWeeksAction;
 use App\Application\League\PlayNextWeekAction;
 use App\Application\League\ResetLeagueAction;
+use App\Http\Controllers\Api\Concerns\HandlesApiErrors;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\EditMatchScoreRequest;
+use Throwable;
 
 final class SimulationController extends Controller
 {
+    use HandlesApiErrors;
+
     public function __construct(
         private readonly GenerateFixturesAction $generate,
         private readonly PlayNextWeekAction $playNext,
@@ -22,35 +26,56 @@ final class SimulationController extends Controller
 
     public function generateFixtures()
     {
-        $this->generate->execute();
-        return response()->json(['ok' => true]);
+        try {
+            $this->generate->execute();
+            return $this->ok(['ok' => true]);
+        } catch (Throwable $e) {
+            return $this->handle($e);
+        }
     }
 
     public function playNextWeek()
     {
-        $week = $this->playNext->execute();
-        return response()->json(['data' => ['current_week' => $week]]);
+        try {
+            $week = $this->playNext->execute();
+            return $this->ok(['ok' => true, 'data' => ['current_week' => $week]]);
+        } catch (Throwable $e) {
+            return $this->handle($e);
+        }
     }
 
     public function playAllWeeks()
     {
-        $this->playAll->execute();
-        return response()->json(['ok' => true]);
+        try {
+            $this->playAll->execute();
+            return $this->ok(['ok' => true]);
+        } catch (Throwable $e) {
+            return $this->handle($e);
+        }
     }
 
     public function resetAll()
     {
-        $this->reset->execute();
-        return response()->json(['ok' => true]);
+        try {
+            $this->reset->execute();
+            return $this->ok(['ok' => true]);
+        } catch (Throwable $e) {
+            return $this->handle($e);
+        }
     }
 
     public function editMatch(EditMatchScoreRequest $request, int $matchId)
     {
-        $this->editScore->execute(
-            $matchId,
-            (int)$request->integer('home_score'),
-            (int)$request->integer('away_score'),
-        );
-        // BUG: yukarıdaki away_score iki kez; aşağıdaki doğru versiyon:
+        try {
+            $this->editScore->execute(
+                $matchId,
+                (int)$request->integer('home_score'),
+                (int)$request->integer('away_score'),
+            );
+
+            return $this->ok(['ok' => true]);
+        } catch (Throwable $e) {
+            return $this->handle($e);
+        }
     }
 }
