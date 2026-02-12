@@ -49,7 +49,7 @@ final class SimulationEditScoreRecalcTest extends TestCase
 
         // Eğer played filtresi yüzünden bulamazsa, ilk maçı al (en kötü senaryo)
         if (!$game) {
-            $game = Game::query()->orderBy('id')->first();
+            $game = GameMatch::query()->orderBy('id')->first();
         }
 
         $this->assertNotNull($game, 'No game found in DB after simulation steps.');
