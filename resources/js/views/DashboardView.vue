@@ -19,20 +19,20 @@
                             v-if="league.leagueInfo?.is_finished"
                             class="ml-2 inline-flex items-center rounded-full bg-green-50 px-2 py-0.5 text-xs font-medium text-green-700"
                         >
-              Finished
-            </span>
+                            Finished
+                        </span>
                         <span
                             v-else-if="league.leagueInfo?.is_started"
                             class="ml-2 inline-flex items-center rounded-full bg-blue-50 px-2 py-0.5 text-xs font-medium text-blue-700"
                         >
-              Running
-            </span>
+                            Running
+                        </span>
                         <span
                             v-else
                             class="ml-2 inline-flex items-center rounded-full bg-gray-100 px-2 py-0.5 text-xs font-medium text-gray-700"
                         >
-              Not started
-            </span>
+                            Not started
+                        </span>
                     </div>
 
                     <div v-if="league.error" class="mt-2 text-sm text-red-600">
@@ -45,7 +45,7 @@
                         Refresh
                     </UiButton>
 
-                    <UiButton :disabled="sim.busy" variant="danger" @click="onReset" size="sm">
+                    <UiButton :disabled="sim.busy" variant="danger" @click="openReset" size="sm">
                         Reset
                     </UiButton>
                 </div>
@@ -124,11 +124,18 @@
             @close="closeEdit"
             @save="saveEdit"
         />
+
+        <ResetConfirmModal
+            v-if="reset.open"
+            :busy="reset.busy || sim.busy"
+            @close="closeReset"
+            @confirm="confirmReset"
+        />
     </div>
 </template>
 
 <script setup lang="ts">
-import { onMounted } from 'vue'
+import { onMounted, reactive } from 'vue'
 import UiCard from '../components/ui/UiCard.vue'
 import UiButton from '../components/ui/UiButton.vue'
 import UiSpinner from '../components/ui/UiSpinner.vue'
@@ -137,12 +144,12 @@ import FixturesAccordion from '../components/league/FixturesAccordion.vue'
 import WeekResultsList from '../components/league/WeekResultsList.vue'
 import MatchEditModal from '../components/league/MatchEditModal.vue'
 import SimulationControls from '../components/league/SimulationControls.vue'
+import ResetConfirmModal from '../components/league/ResetConfirmModal.vue'
 
 import { useLeagueStore } from '../stores/leagueStore'
 import { useSimulationStore } from '../stores/simulationStore'
 import { useUiStore } from '../stores/uiStore'
 import { useMatchEdit } from '../composables/useMatchEdit'
-import type { FixtureMatch } from '../api/types'
 
 const league = useLeagueStore()
 const sim = useSimulationStore()
@@ -191,14 +198,31 @@ async function onPlayAll() {
     }
 }
 
-async function onReset() {
-    if (!confirm('Reset all data (teams + matches)?')) return
+const reset = reactive<{ open: boolean; busy: boolean }>({
+    open: false,
+    busy: false,
+})
+
+function openReset() {
+    reset.open = true
+}
+
+function closeReset() {
+    if (reset.busy) return
+    reset.open = false
+}
+
+async function confirmReset() {
+    reset.busy = true
     try {
         await sim.reset()
         ui.toast('success', 'Reset completed.')
         await reloadAll()
+        reset.open = false
     } catch {
         ui.toast('error', sim.error ?? 'Reset failed.')
+    } finally {
+        reset.busy = false
     }
 }
 
