@@ -123,9 +123,9 @@ npm run build
 4️⃣ Run
 php artisan serve
 Open:
-
+```bash
 http://localhost:8000/dashboard
-
+```
 🐳 Docker
 docker compose up -d --build
 docker compose exec app php artisan migrate
