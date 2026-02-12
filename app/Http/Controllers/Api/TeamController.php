@@ -23,7 +23,9 @@ final class TeamController extends Controller
     {
         try {
             $league = $this->leagues->getDefault();
-            return $this->ok(['ok' => true, 'data' => $this->teams->allByLeague((int)$league->id)]);
+            $teams = $this->teams->allByLeague((int) $league->id);
+
+            return $this->ok($teams);
         } catch (Throwable $e) {
             return $this->handle($e);
         }
@@ -33,13 +35,14 @@ final class TeamController extends Controller
     {
         try {
             $league = $this->leagues->getDefault();
+
             $team = $this->teams->create(
-                (int)$league->id,
-                (string)$request->string('name'),
-                (int)$request->integer('power')
+                (int) $league->id,
+                (string) $request->string('name'),
+                (int) $request->integer('power'),
             );
 
-            return $this->ok(['ok' => true, 'data' => $team], 201);
+            return $this->ok($team, 201);
         } catch (Throwable $e) {
             return $this->handle($e);
         }
@@ -49,8 +52,14 @@ final class TeamController extends Controller
     {
         try {
             $league = $this->leagues->getDefault();
-            $team = $this->teams->update((int)$league->id, $teamId, $request->validated());
-            return $this->ok(['ok' => true, 'data' => $team]);
+
+            $team = $this->teams->update(
+                (int) $league->id,
+                (int) $teamId,
+                $request->validated(),
+            );
+
+            return $this->ok($team);
         } catch (Throwable $e) {
             return $this->handle($e);
         }
@@ -60,8 +69,13 @@ final class TeamController extends Controller
     {
         try {
             $league = $this->leagues->getDefault();
-            $this->teams->delete((int)$league->id, $teamId);
-            return $this->ok(['ok' => true]);
+
+            $this->teams->delete(
+                (int) $league->id,
+                (int) $teamId,
+            );
+
+            return $this->ok(['deleted' => true]);
         } catch (Throwable $e) {
             return $this->handle($e);
         }

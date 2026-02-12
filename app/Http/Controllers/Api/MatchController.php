@@ -21,7 +21,9 @@ final class MatchController extends Controller
     {
         try {
             $league = $this->leagues->getDefault();
-            return $this->ok(['ok' => true, 'data' => $this->matches->fixturesGroupedByWeek((int)$league->id)]);
+            $fixtures = $this->matches->fixturesGroupedByWeek((int) $league->id);
+
+            return $this->ok($fixtures);
         } catch (Throwable $e) {
             return $this->handle($e);
         }

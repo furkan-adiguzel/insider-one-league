@@ -28,7 +28,7 @@ final class SimulationController extends Controller
     {
         try {
             $this->generate->execute();
-            return $this->ok(['ok' => true]);
+            return $this->ok(['generated' => true]);
         } catch (Throwable $e) {
             return $this->handle($e);
         }
@@ -38,7 +38,7 @@ final class SimulationController extends Controller
     {
         try {
             $week = $this->playNext->execute();
-            return $this->ok(['ok' => true, 'data' => ['current_week' => $week]]);
+            return $this->ok(['current_week' => $week]);
         } catch (Throwable $e) {
             return $this->handle($e);
         }
@@ -48,7 +48,7 @@ final class SimulationController extends Controller
     {
         try {
             $this->playAll->execute();
-            return $this->ok(['ok' => true]);
+            return $this->ok(['played_all' => true]);
         } catch (Throwable $e) {
             return $this->handle($e);
         }
@@ -58,7 +58,7 @@ final class SimulationController extends Controller
     {
         try {
             $this->reset->execute();
-            return $this->ok(['ok' => true]);
+            return $this->ok(['reset' => true]);
         } catch (Throwable $e) {
             return $this->handle($e);
         }
@@ -68,12 +68,12 @@ final class SimulationController extends Controller
     {
         try {
             $this->editScore->execute(
-                $matchId,
-                (int)$request->integer('home_score'),
-                (int)$request->integer('away_score'),
+                (int) $matchId,
+                (int) $request->integer('home_score'),
+                (int) $request->integer('away_score'),
             );
 
-            return $this->ok(['ok' => true]);
+            return $this->ok(['updated' => true]);
         } catch (Throwable $e) {
             return $this->handle($e);
         }

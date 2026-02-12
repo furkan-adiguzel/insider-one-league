@@ -3,51 +3,80 @@
 namespace App\Http\Controllers\Api\Concerns;
 
 use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 use Symfony\Component\HttpKernel\Exception\HttpExceptionInterface;
 use Throwable;
 
 trait HandlesApiErrors
 {
-    private function ok(array $payload = [], int $status = 200): JsonResponse
+    private function ok(mixed $data = null, int $status = 200): JsonResponse
     {
-        return response()->json($payload, $status);
+        return response()->json(
+            $this->envelope(true, $data),
+            $status,
+            [],
+            JSON_PRETTY_PRINT
+        );
     }
 
     private function handle(Throwable $e): JsonResponse
     {
-        // Validation errors (422)
+        $this->logException($e);
+
+        $status = 500;
+        $type = 'server_error';
+        $message = config('app.debug')
+            ? $e->getMessage()
+            : 'Unexpected server error.';
+
         if ($e instanceof ValidationException) {
-            return response()->json([
-                'ok' => false,
-                'error' => [
-                    'type' => 'validation_error',
-                    'message' => 'Validation failed.',
-                    'fields' => $e->errors(),
-                ],
-            ], 422);
+            $status = 422;
+            $type = 'validation_error';
+            $message = 'Validation failed.';
         }
 
-        // abort(422/404/403...) etc.
         if ($e instanceof HttpExceptionInterface) {
             $status = $e->getStatusCode();
-
-            return response()->json([
-                'ok' => false,
-                'error' => [
-                    'type' => 'http_error',
-                    'message' => $e->getMessage() ?: 'Request failed.',
-                ],
-            ], $status);
+            $type = 'http_error';
+            $message = $e->getMessage() ?: 'Request failed.';
         }
 
-        // Default (500)
-        return response()->json([
-            'ok' => false,
-            'error' => [
-                'type' => 'server_error',
-                'message' => config('app.debug') ? $e->getMessage() : 'Unexpected server error.',
+        return response()->json(
+            $this->envelope(false, null, [
+                'type' => $type,
+                'message' => $message,
+                'code' => $status,
+            ]),
+            $status,
+            [],
+            JSON_PRETTY_PRINT
+        );
+    }
+
+    private function envelope(bool $ok, mixed $data = null, array $error = null): array
+    {
+        return [
+            'ok' => $ok,
+            'data' => $data,
+            'error' => $error,
+            'meta' => [
+                'timestamp' => now()->toISOString(),
+                'request_id' => request()->header('X-Request-ID') ?? Str::uuid()->toString(),
+                'version' => config('app.version', '1.0'),
             ],
-        ], 500);
+        ];
+    }
+
+    private function logException(Throwable $e): void
+    {
+        Log::error('API Exception', [
+            'exception' => get_class($e),
+            'message' => $e->getMessage(),
+            'url' => request()->fullUrl(),
+            'method' => request()->method(),
+            'trace' => config('app.debug') ? $e->getTraceAsString() : null,
+        ]);
     }
 }
