@@ -14,13 +14,23 @@
                         <span class="font-semibold text-gray-900">{{ league.leagueInfo?.current_week ?? 0 }}</span>
                         /
                         {{ league.leagueInfo?.total_weeks ?? 0 }}
-                        <span v-if="league.leagueInfo?.is_finished" class="ml-2 inline-flex items-center rounded-full bg-green-50 px-2 py-0.5 text-xs font-medium text-green-700">
+
+                        <span
+                            v-if="league.leagueInfo?.is_finished"
+                            class="ml-2 inline-flex items-center rounded-full bg-green-50 px-2 py-0.5 text-xs font-medium text-green-700"
+                        >
               Finished
             </span>
-                        <span v-else-if="league.leagueInfo?.is_started" class="ml-2 inline-flex items-center rounded-full bg-blue-50 px-2 py-0.5 text-xs font-medium text-blue-700">
+                        <span
+                            v-else-if="league.leagueInfo?.is_started"
+                            class="ml-2 inline-flex items-center rounded-full bg-blue-50 px-2 py-0.5 text-xs font-medium text-blue-700"
+                        >
               Running
             </span>
-                        <span v-else class="ml-2 inline-flex items-center rounded-full bg-gray-100 px-2 py-0.5 text-xs font-medium text-gray-700">
+                        <span
+                            v-else
+                            class="ml-2 inline-flex items-center rounded-full bg-gray-100 px-2 py-0.5 text-xs font-medium text-gray-700"
+                        >
               Not started
             </span>
                     </div>
@@ -59,12 +69,21 @@
                     <UiButton :disabled="sim.busy" variant="primary" @click="onGenerate">
                         Generate Fixtures
                     </UiButton>
-                    <UiButton :disabled="sim.busy" @click="onPlayNext">
+
+                    <UiButton :disabled="sim.busy || !canPlayNext" @click="onPlayNext">
                         Play Next Week
                     </UiButton>
-                    <UiButton :disabled="sim.busy" @click="onPlayAll">
+
+                    <UiButton :disabled="sim.busy || !canPlayAll" @click="onPlayAll">
                         Play All
                     </UiButton>
+
+                    <div v-if="isFinished" class="mt-1 text-xs text-gray-500">
+                        Season finished. Reset to play again.
+                    </div>
+                    <div v-else-if="!hasFixtures" class="mt-1 text-xs text-gray-500">
+                        No fixtures yet. Generate fixtures first.
+                    </div>
                 </div>
 
                 <div class="mt-4 rounded-xl border border-gray-200 bg-gray-50 p-3">
@@ -142,7 +161,7 @@
 </template>
 
 <script setup lang="ts">
-import { reactive, onMounted } from 'vue'
+import { reactive, onMounted, computed } from 'vue'
 import UiCard from '../components/ui/UiCard.vue'
 import UiButton from '../components/ui/UiButton.vue'
 import UiSpinner from '../components/ui/UiSpinner.vue'
@@ -165,6 +184,12 @@ const edit = reactive<{ open: boolean; match: FixtureMatch | null }>({
     open: false,
     match: null,
 })
+
+const isFinished = computed(() => !!league.leagueInfo?.is_finished)
+const hasFixtures = computed(() => Object.keys(league.fixturesByWeek ?? {}).length > 0)
+
+const canPlayNext = computed(() => hasFixtures.value && !isFinished.value)
+const canPlayAll = computed(() => hasFixtures.value && !isFinished.value)
 
 async function reloadAll() {
     await league.refresh()
@@ -198,6 +223,7 @@ async function onGenerate() {
 }
 
 async function onPlayNext() {
+    if (!canPlayNext.value) return
     try {
         const r = await sim.playNextWeek()
         ui.toast('success', `Played week ${r.current_week}.`)
@@ -208,6 +234,7 @@ async function onPlayNext() {
 }
 
 async function onPlayAll() {
+    if (!canPlayAll.value) return
     try {
         await sim.playAll()
         ui.toast('success', 'All weeks played.')
