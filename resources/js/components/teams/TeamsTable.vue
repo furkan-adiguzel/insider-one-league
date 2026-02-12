@@ -70,20 +70,30 @@ const emit = defineEmits<{
 }>()
 
 const local = reactive<Record<number, { name: string; power: number }>>({})
+const original = reactive<Record<number, { name: string; power: number }>>({})
 
 watchEffect(() => {
     for (const t of props.teams) {
-        if (!local[t.id]) local[t.id] = { name: t.name, power: t.power }
-        else {
-            local[t.id].name = t.name
-            local[t.id].power = t.power
+        const snap = { name: t.name, power: t.power }
+
+        if (!local[t.id]) {
+            local[t.id] = { ...snap }
+            original[t.id] = { ...snap }
+            continue
         }
+
+        local[t.id].name = t.name
+        local[t.id].power = t.power
+        original[t.id] = { ...snap }
     }
 })
 
+function normalizedName(teamId: number): string {
+    return (local[teamId]?.name ?? '').trim()
+}
+
 function isNameValid(teamId: number): boolean {
-    const n = (local[teamId]?.name ?? '').trim()
-    return n.length > 1
+    return normalizedName(teamId).length > 1
 }
 
 function isPowerValid(teamId: number): boolean {
@@ -91,13 +101,31 @@ function isPowerValid(teamId: number): boolean {
     return Number.isFinite(p) && p >= 1 && p <= 200
 }
 
+function isDirty(teamId: number): boolean {
+    const o = original[teamId]
+    if (!o) return false
+
+    const nameNow = normalizedName(teamId)
+    const nameOrig = (o.name ?? '').trim()
+
+    const powerNow = Number(local[teamId]?.power)
+    const powerOrig = Number(o.power)
+
+    return nameNow !== nameOrig || powerNow !== powerOrig
+}
+
 function canSave(teamId: number): boolean {
-    return isNameValid(teamId) && isPowerValid(teamId)
+    return isDirty(teamId) && isNameValid(teamId) && isPowerValid(teamId)
 }
 
 function save(teamId: number) {
     if (!canSave(teamId)) return
     const row = local[teamId]
-    emit('update', { teamId, name: row.name.trim(), power: Number(row.power) })
+
+    emit('update', {
+        teamId,
+        name: (row.name ?? '').trim(),
+        power: Number(row.power),
+    })
 }
 </script>

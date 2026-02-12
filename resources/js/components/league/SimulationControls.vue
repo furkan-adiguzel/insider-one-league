@@ -54,12 +54,11 @@ import UiCard from '../ui/UiCard.vue'
 import UiButton from '../ui/UiButton.vue'
 import UiSpinner from '../ui/UiSpinner.vue'
 import PredictionsPanel from './PredictionsPanel.vue'
-import type { PredictionRowDTO } from '../../api/types'
 
 defineProps<{
     busy: boolean
     error: string | null
-    predictions: any[] // elindeki tipe göre PredictionRowDTO[] yapabilirsin
+    predictions: any[]
     hasFixtures: boolean
     isFinished: boolean
     canPlayNext: boolean
