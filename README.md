@@ -5,9 +5,6 @@ A league simulation engine that plays weekly matches, calculates standings dynam
 🌐 **Live Demo:**  
 https://insider-one-league.furkanadiguzel.com/
 
-📊 **Dashboard:**  
-https://insider-one-league.furkanadiguzel.com/dashboard
-
 ---
 
 ## 📖 About The Project
