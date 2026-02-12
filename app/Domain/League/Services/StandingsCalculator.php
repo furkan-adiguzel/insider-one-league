@@ -1,44 +1,31 @@
 <?php
 
-namespace App\Services\League;
+namespace App\Domain\League\Services;
 
 use App\Data\League\StandingsRowDTO;
-use App\Models\GameMatch;
-use App\Models\League;
-use App\Models\Team;
 
-final class StandingsService
+final class StandingsCalculator
 {
     /**
+     * @param array<int, array{id:int,name:string}> $teams keyed by id
+     * @param array<int, array{home:int,away:int,hs:int,as:int}> $playedMatches
      * @return StandingsRowDTO[]
      */
-    public function standings(League $league): array
+    public function calculate(array $teams, array $playedMatches): array
     {
-        $teams = Team::query()
-            ->where('league_id', $league->id)
-            ->get(['id','name'])
-            ->keyBy('id');
-
         $rows = [];
-        foreach ($teams as $t) {
-            $rows[$t->id] = [
-                'teamId' => $t->id,
-                'teamName' => $t->name,
+        foreach ($teams as $id => $t) {
+            $rows[$id] = [
+                'teamId' => (int)$t['id'],
+                'teamName' => (string)$t['name'],
                 'played' => 0, 'win' => 0, 'draw' => 0, 'lose' => 0,
                 'gf' => 0, 'ga' => 0, 'gd' => 0, 'points' => 0,
             ];
         }
 
-        $playedMatches = GameMatch::query()
-            ->where('league_id', $league->id)
-            ->where('is_played', true)
-            ->get(['home_team_id','away_team_id','home_score','away_score']);
-
         foreach ($playedMatches as $m) {
-            $h = (int)$m->home_team_id;
-            $a = (int)$m->away_team_id;
-            $hs = (int)$m->home_score;
-            $as = (int)$m->away_score;
+            $h = $m['home']; $a = $m['away'];
+            $hs = $m['hs'];  $as = $m['as'];
 
             $rows[$h]['played']++;
             $rows[$a]['played']++;
@@ -58,13 +45,12 @@ final class StandingsService
             }
         }
 
-        foreach ($rows as &$r) {
-            $r['gd'] = $r['gf'] - $r['ga'];
-        }
+        foreach ($rows as &$r) $r['gd'] = $r['gf'] - $r['ga'];
         unset($r);
 
-        // Sort: points desc, gd desc, gf desc, teamName asc
-        usort($rows, function ($x, $y) {
+        $list = array_values($rows);
+
+        usort($list, function ($x, $y) {
             return
                 [$y['points'], $y['gd'], $y['gf'], $x['teamName']]
                 <=> [$x['points'], $x['gd'], $x['gf'], $y['teamName']];
@@ -74,6 +60,6 @@ final class StandingsService
             $r['teamId'], $r['teamName'],
             $r['played'], $r['win'], $r['draw'], $r['lose'],
             $r['gf'], $r['ga'], $r['gd'], $r['points']
-        ), $rows);
+        ), $list);
     }
 }

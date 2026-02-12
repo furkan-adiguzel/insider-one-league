@@ -11,6 +11,7 @@ class Team extends Model
 
     protected $casts = [
         'power' => 'int',
+        'league_id' => 'int',
     ];
 
     public function league(): BelongsTo

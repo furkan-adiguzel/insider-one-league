@@ -2,7 +2,7 @@
 
 namespace App\Services\League;
 
-use App\Data\PredictionDTO;
+use App\Data\League\PredictionDTO;
 use App\Models\GameMatch;
 use App\Models\League;
 use App\Models\Team;

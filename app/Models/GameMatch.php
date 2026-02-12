@@ -15,7 +15,10 @@ class GameMatch extends Model
     ];
 
     protected $casts = [
+        'league_id' => 'int',
         'week' => 'int',
+        'home_team_id' => 'int',
+        'away_team_id' => 'int',
         'home_score' => 'int',
         'away_score' => 'int',
         'is_played' => 'bool',

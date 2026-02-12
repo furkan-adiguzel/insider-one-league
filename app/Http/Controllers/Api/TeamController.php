@@ -2,75 +2,43 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Domain\League\Contracts\LeagueRepository;
+use App\Domain\League\Contracts\TeamRepository;
 use App\Http\Controllers\Controller;
-use App\Models\Team;
-use App\Services\League\LeagueService;
-use Illuminate\Http\Request;
+use App\Http\Requests\StoreTeamRequest;
+use App\Http\Requests\UpdateTeamRequest;
 
 final class TeamController extends Controller
 {
-    public function __construct(private readonly LeagueService $league) {}
+    public function __construct(
+        private readonly LeagueRepository $leagues,
+        private readonly TeamRepository $teams,
+    ) {}
 
     public function index()
     {
-        $league = $this->league->ensureDefaultLeague();
-
-        return response()->json([
-            'data' => Team::query()
-                ->where('league_id', $league->id)
-                ->orderBy('id')
-                ->get(['id','name','power']),
-        ]);
+        $league = $this->leagues->getDefault();
+        return response()->json(['data' => $this->teams->allByLeague((int)$league->id)]);
     }
 
-    public function store(Request $request)
+    public function store(StoreTeamRequest $request)
     {
-        $league = $this->league->ensureDefaultLeague();
-
-        $data = $request->validate([
-            'name' => ['required','string','max:80'],
-            'power' => ['required','integer','min:1','max:200'],
-        ]);
-
-        $team = Team::query()->create([
-            'league_id' => $league->id,
-            'name' => $data['name'],
-            'power' => (int)$data['power'],
-        ]);
-
+        $league = $this->leagues->getDefault();
+        $team = $this->teams->create((int)$league->id, $request->string('name'), (int)$request->integer('power'));
         return response()->json(['data' => $team], 201);
     }
 
-    public function update(Request $request, int $teamId)
+    public function update(UpdateTeamRequest $request, int $teamId)
     {
-        $league = $this->league->ensureDefaultLeague();
-
-        $data = $request->validate([
-            'name' => ['sometimes','string','max:80'],
-            'power' => ['sometimes','integer','min:1','max:200'],
-        ]);
-
-        $team = Team::query()
-            ->where('league_id', $league->id)
-            ->where('id', $teamId)
-            ->firstOrFail();
-
-        $team->update($data);
-
+        $league = $this->leagues->getDefault();
+        $team = $this->teams->update((int)$league->id, $teamId, $request->validated());
         return response()->json(['data' => $team]);
     }
 
     public function destroy(int $teamId)
     {
-        $league = $this->league->ensureDefaultLeague();
-
-        $team = Team::query()
-            ->where('league_id', $league->id)
-            ->where('id', $teamId)
-            ->firstOrFail();
-
-        $team->delete();
-
+        $league = $this->leagues->getDefault();
+        $this->teams->delete((int)$league->id, $teamId);
         return response()->json(['ok' => true]);
     }
 }

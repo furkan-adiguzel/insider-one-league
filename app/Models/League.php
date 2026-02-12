@@ -12,6 +12,8 @@ class League extends Model
     ];
 
     protected $casts = [
+        'current_week' => 'int',
+        'total_weeks' => 'int',
         'is_started' => 'bool',
         'is_finished' => 'bool',
         'started_at' => 'datetime',
@@ -25,6 +27,6 @@ class League extends Model
 
     public function matches(): HasMany
     {
-        return $this->hasMany(GameMatch::class);
+        return $this->hasMany(GameMatch::class, 'league_id');
     }
 }

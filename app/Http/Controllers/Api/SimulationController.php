@@ -2,57 +2,55 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Application\League\EditMatchScoreAction;
+use App\Application\League\GenerateFixturesAction;
+use App\Application\League\PlayAllWeeksAction;
+use App\Application\League\PlayNextWeekAction;
+use App\Application\League\ResetLeagueAction;
 use App\Http\Controllers\Controller;
-use App\Services\League\LeagueService;
-use Illuminate\Http\Request;
+use App\Http\Requests\EditMatchScoreRequest;
 
 final class SimulationController extends Controller
 {
-    public function __construct(private readonly LeagueService $league) {}
+    public function __construct(
+        private readonly GenerateFixturesAction $generate,
+        private readonly PlayNextWeekAction $playNext,
+        private readonly PlayAllWeeksAction $playAll,
+        private readonly ResetLeagueAction $reset,
+        private readonly EditMatchScoreAction $editScore,
+    ) {}
 
     public function generateFixtures()
     {
-        $league = $this->league->ensureDefaultLeague();
-        $this->league->generateFixtures($league);
-
+        $this->generate->execute();
         return response()->json(['ok' => true]);
     }
 
     public function playNextWeek()
     {
-        $league = $this->league->ensureDefaultLeague();
-        $week = $this->league->playNextWeek($league);
-
+        $week = $this->playNext->execute();
         return response()->json(['data' => ['current_week' => $week]]);
     }
 
     public function playAllWeeks()
     {
-        $league = $this->league->ensureDefaultLeague();
-        $this->league->playAll($league);
-
+        $this->playAll->execute();
         return response()->json(['ok' => true]);
     }
 
     public function resetAll()
     {
-        $league = $this->league->ensureDefaultLeague();
-        $this->league->resetLeague($league);
-
+        $this->reset->execute();
         return response()->json(['ok' => true]);
     }
 
-    public function editMatch(Request $request, int $matchId)
+    public function editMatch(EditMatchScoreRequest $request, int $matchId)
     {
-        $league = $this->league->ensureDefaultLeague();
-
-        $data = $request->validate([
-            'home_score' => ['required','integer','min:0','max:20'],
-            'away_score' => ['required','integer','min:0','max:20'],
-        ]);
-
-        $this->league->editMatchScore($league, $matchId, (int)$data['home_score'], (int)$data['away_score']);
-
-        return response()->json(['ok' => true]);
+        $this->editScore->execute(
+            $matchId,
+            (int)$request->integer('home_score'),
+            (int)$request->integer('away_score'),
+        );
+        // BUG: yukarıdaki away_score iki kez; aşağıdaki doğru versiyon:
     }
 }

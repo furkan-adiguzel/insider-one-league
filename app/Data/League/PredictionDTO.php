@@ -1,12 +1,12 @@
 <?php
 
-namespace App\Data;
+namespace App\Data\League;
 
 final class PredictionDTO
 {
     public function __construct(
         public readonly int $teamId,
         public readonly string $teamName,
-        public readonly float $championshipPercent, // 0..100
+        public readonly float $championshipPercent,
     ) {}
 }
