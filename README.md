@@ -99,7 +99,7 @@ php artisan serve
 npm run dev
 UI:
 
-http://localhost:8000/ui
+http://localhost:8000/
 Test Çalıştırma
 php artisan test
 Testlerde SQLite memory kullanmak istersen .env.testing şu şekilde olabilir:

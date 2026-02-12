@@ -18,16 +18,16 @@
 
                 <nav class="flex items-center gap-2 text-sm">
                     <RouterLink
-                        to="/ui/dashboard"
+                        to="/dashboard"
                         class="px-3 py-2 rounded-xl transition"
-                        :class="is('/ui/dashboard') ? 'bg-gray-900 text-white' : 'text-gray-700 hover:bg-gray-100'"
+                        :class="is('/dashboard') ? 'bg-gray-900 text-white' : 'text-gray-700 hover:bg-gray-100'"
                     >
                         Dashboard
                     </RouterLink>
                     <RouterLink
-                        to="/ui/teams"
+                        to="/teams"
                         class="px-3 py-2 rounded-xl transition"
-                        :class="is('/ui/teams') ? 'bg-gray-900 text-white' : 'text-gray-700 hover:bg-gray-100'"
+                        :class="is('/teams') ? 'bg-gray-900 text-white' : 'text-gray-700 hover:bg-gray-100'"
                     >
                         Teams
                     </RouterLink>
