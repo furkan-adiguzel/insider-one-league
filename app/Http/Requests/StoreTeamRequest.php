@@ -15,4 +15,10 @@ final class StoreTeamRequest extends FormRequest
             'power' => ['required','integer','min:1','max:200'],
         ];
     }
+    public function messages(): array
+    {
+        return [
+            'power.max' => 'Team power must be 200 or less.',
+        ];
+    }
 }

@@ -15,4 +15,11 @@ final class EditMatchScoreRequest extends FormRequest
             'away_score' => ['required','integer','min:0','max:20'],
         ];
     }
+    public function messages(): array
+    {
+        return [
+            'home_score.max' => 'Home score must be 20 or less.',
+            'away_score.max' => 'Away score must be 20 or less.',
+        ];
+    }
 }

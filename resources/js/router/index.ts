@@ -6,6 +6,8 @@ const routes: RouteRecordRaw[] = [
     { path: '/', redirect: '/dashboard' },
     { path: '/dashboard', component: DashboardView },
     { path: '/teams', component: TeamsView },
+
+    { path: '/:pathMatch(.*)*', redirect: '/dashboard' },
 ]
 
 export default createRouter({
