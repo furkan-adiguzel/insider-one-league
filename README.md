@@ -125,17 +125,20 @@ php artisan serve
 Open:
 ```bash
 http://localhost:8000/dashboard
-```
+
 🐳 Docker
+```bash
 docker compose up -d --build
 docker compose exec app php artisan migrate
-
+```
 🧪 Tests
+```bash
 php artisan test
-✔ Full simulation flow
-✔ Score edit recalculation
-✔ Prediction validation
-✔ API endpoint verification
+```
+✔ Full simulation flow  
+✔ Score edit recalculation  
+✔ Prediction validation  
+✔ API endpoint verification  
 
 🔌 API Endpoints
 
