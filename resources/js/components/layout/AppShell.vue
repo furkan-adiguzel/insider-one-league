@@ -1,5 +1,6 @@
 <template>
-    <div class="min-h-screen">
+    <div class="min-h-screen flex flex-col">
+        <!-- HEADER -->
         <header class="sticky top-0 z-40 border-b border-gray-200/70 bg-white/80 backdrop-blur">
             <div class="mx-auto max-w-6xl px-4 sm:px-6 py-3 flex items-center justify-between gap-4">
                 <div class="flex items-center gap-3 min-w-0">
@@ -24,6 +25,7 @@
                     >
                         Dashboard
                     </RouterLink>
+
                     <RouterLink
                         to="/teams"
                         class="px-3 py-2 rounded-xl transition"
@@ -35,9 +37,13 @@
             </div>
         </header>
 
-        <main class="mx-auto max-w-6xl px-4 sm:px-6 py-6">
+        <!-- CONTENT -->
+        <main class="flex-1 min-h-0 mx-auto max-w-6xl w-full px-4 sm:px-6 py-6">
             <RouterView />
         </main>
+
+        <!-- FOOTER COMPONENT -->
+        <AppFooter />
 
         <UiToastHost />
     </div>
@@ -46,6 +52,7 @@
 <script setup lang="ts">
 import { useRoute } from 'vue-router'
 import UiToastHost from '../ui/UiToastHost.vue'
+import AppFooter from '../layout/AppFooter.vue'
 
 const route = useRoute()
 const is = (p: string) => route.path === p
