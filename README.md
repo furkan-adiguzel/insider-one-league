@@ -210,13 +210,10 @@ PATCH  /api/simulation/matches/{matchId}
 
 📌 Notes  
 
-Default season length: 6 weeks
-
-Monte Carlo iteration count optimized for performance
-
-UI intentionally minimal
-
-Production requires Vite build (public/build/manifest.json)
+- Default season length: 6 weeks
+- Monte Carlo iteration count optimized for performance
+- UI intentionally minimal
+- Production requires Vite build (public/build/manifest.json)
 
 👨‍💻 Author
 © 2026 Furkan Adıgüzel
