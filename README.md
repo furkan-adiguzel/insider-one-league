@@ -208,7 +208,7 @@ POST   /api/simulation/reset
 PATCH  /api/simulation/matches/{matchId}
 ```
 
-📌 Notes
+📌 Notes  
 Default season length: 6 weeks
 
 Monte Carlo iteration count optimized for performance
